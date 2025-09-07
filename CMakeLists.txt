@@ -38,6 +38,7 @@ set(SOURCES
     src/capture.cpp
     src/mouse.cpp
     src/show_gui.cpp
+    src/init.cpp
     #src/config_gui.cpp
 )
 
@@ -46,6 +47,7 @@ set(HEADERS
     src/capture.h
     src/mouse.h
     src/show_gui.h
+    src/init.h
     #src/config_gui.h
 )
 
@@ -73,6 +75,7 @@ target_link_libraries(targetchi
 PRIVATE
     ${OpenCV_LIBS}
     raylib-gui
+    hid setupapi
     #bootloader
 )
 

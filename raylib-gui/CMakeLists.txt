@@ -18,15 +18,18 @@ set(HEADERS
     src/raygui.h
 )
 
-# SHARED library (linked obj files) 
+# SHARED library (linked obj files) <- runs with final exe as DLL, all symbols are resolved when creating DLL
 # MODULE library (SHARED, but may not be linked by other binaries as deps)
 # OBJECT library (unlinked group of obj files)
-# STATIC library (OBJECT, to be linked into the executable) 
-add_library(raylib-gui ${SOURCES} ${HEADERS})
+# STATIC library (OBJECT, to be linked into the executable) <- contains unresolved symbols, requires linking with deps in final exe
+add_library(raylib-gui SHARED ${SOURCES} ${HEADERS})
 
+# Cmake source dir depends on what the top-level cmake file is
 set_target_properties(raylib-gui PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin"
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
+target_compile_definitions(raylib-gui PRIVATE RAYLIB_GUI_EXPORTS)
 
 # Set raylib directory
 set(RAYLIB_DIR "C:\\libs\\raylib-5.5_win64_msvc16")

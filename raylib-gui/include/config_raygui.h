@@ -1,10 +1,16 @@
 #pragma once
 
+#ifdef RAYLIB_GUI_EXPORTS
+    #define RAYLIB_GUI_API __declspec(dllexport)
+#else
+    #define RAYLIB_GUI_API __declspec(dllimport)
+#endif
+
 #include <string>
 #include <functional>
 
 // Forward declare the AimbuddyConfig struct to avoid including aimbuddy.h directly
-struct AimbuddyConfig {
+struct RAYLIB_GUI_API AimbuddyConfig {
     // General tab
     int QUIT;                  // Quit key
     int TOGGLE_KEY;            // Toggle key
@@ -24,6 +30,11 @@ struct AimbuddyConfig {
     int ACTIVATE_TRIGGER;      // Activate trigger key
 };
 
+// Show the RayGUI config dialog with the given initial config
+// Returns the updated config when the user clicks Save
+RAYLIB_GUI_API AimbuddyConfig ShowRayGUIConfigDialog(const AimbuddyConfig& config);
+
+
 //typedef to prevent header conflicts with windows header
 typedef struct OPAQUERECT {
     float x;                // Rectangle top-left corner position x
@@ -32,9 +43,6 @@ typedef struct OPAQUERECT {
     float height;           // Rectangle height
 } OPAQUERECT;
 
-// Show the RayGUI config dialog with the given initial config
-// Returns the updated config when the user clicks Save
-AimbuddyConfig ShowRayGUIConfigDialog(const AimbuddyConfig& config);
 
 // GUI implementation class (not exposed in public API)
 class RayGUIConfig {
