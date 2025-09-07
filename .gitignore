@@ -1,0 +1,23 @@
+# Ignore CMake build artifacts
+build/
+raylib-gui/build/
+bootloader/build/
+
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Other common build artifacts
+*.o
+*.obj
+*.so
+*.dll
+*.exe
+*.a
+*.lib
+*.pch
+*.pdb
+*.class
+*.log
