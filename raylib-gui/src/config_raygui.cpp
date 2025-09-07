@@ -1,4 +1,4 @@
-#include "config_raygui.h"
+#include "../include/config_raygui.h"
 #include "raygui.h"
 #include <string>
 #include <map>
@@ -190,13 +190,13 @@ void RayGUIConfig::DrawGeneralTab() {
     // QUIT key binding
     Rectangle quitLabelRec = {static_cast<float>(leftMargin), static_cast<float>(startY), static_cast<float>(labelWidth), 20.0f};
     GuiLabel(quitLabelRec, "Quit Key:");
-    Rectangle quitButtonRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY), static_cast<float>(controlWidth), 20.0f};
+    OPAQUERECT quitButtonRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY), static_cast<float>(controlWidth), 20.0f};
     KeyBindButton(quitButtonRec, &config.QUIT);
     
     // TOGGLE_KEY binding
     Rectangle toggleKeyLabelRec = {static_cast<float>(leftMargin), static_cast<float>(startY + spacing), static_cast<float>(labelWidth), 20.0f};
     GuiLabel(toggleKeyLabelRec, "Toggle Key:");
-    Rectangle toggleKeyButtonRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY + spacing), static_cast<float>(controlWidth), 20.0f};
+    OPAQUERECT toggleKeyButtonRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY + spacing), static_cast<float>(controlWidth), 20.0f};
     KeyBindButton(toggleKeyButtonRec, &config.TOGGLE_KEY);
     
     // INGAME_SENSITIVITY slider
@@ -224,13 +224,13 @@ void RayGUIConfig::DrawAimTab() {
     // TOGGLE_MOVE key binding
     Rectangle toggleMoveLabelRec = {static_cast<float>(leftMargin), static_cast<float>(startY), static_cast<float>(labelWidth), 20.0f};
     GuiLabel(toggleMoveLabelRec, "Toggle Move Key:");
-    Rectangle toggleMoveButtonRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY), static_cast<float>(controlWidth), 20.0f};
+    OPAQUERECT toggleMoveButtonRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY), static_cast<float>(controlWidth), 20.0f};
     KeyBindButton(toggleMoveButtonRec, &config.TOGGLE_MOVE);
     
     // ACTIVATE_MOVE key binding
     Rectangle activateMoveLabelRec = {static_cast<float>(leftMargin), static_cast<float>(startY + spacing), static_cast<float>(labelWidth), 20.0f};
     GuiLabel(activateMoveLabelRec, "Activate Move Key:");
-    Rectangle activateMoveButtonRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY + spacing), static_cast<float>(controlWidth), 20.0f};
+    OPAQUERECT activateMoveButtonRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY + spacing), static_cast<float>(controlWidth), 20.0f};
     KeyBindButton(activateMoveButtonRec, &config.ACTIVATE_MOVE);
     
     // XFOV slider
@@ -276,13 +276,13 @@ void RayGUIConfig::DrawTriggerTab() {
     // TOGGLE_TRIGGER key binding
     Rectangle toggleTriggerLabelRec = {static_cast<float>(leftMargin), static_cast<float>(startY), static_cast<float>(labelWidth), 20.0f};
     GuiLabel(toggleTriggerLabelRec, "Toggle Trigger Key:");
-    Rectangle toggleTriggerButtonRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY), static_cast<float>(controlWidth), 20.0f};
+    OPAQUERECT toggleTriggerButtonRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY), static_cast<float>(controlWidth), 20.0f};
     KeyBindButton(toggleTriggerButtonRec, &config.TOGGLE_TRIGGER);
     
     // ACTIVATE_TRIGGER key binding
     Rectangle activateTriggerLabelRec = {static_cast<float>(leftMargin), static_cast<float>(startY + spacing), static_cast<float>(labelWidth), 20.0f};
     GuiLabel(activateTriggerLabelRec, "Activate Trigger Key:");
-    Rectangle activateTriggerButtonRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY + spacing), static_cast<float>(controlWidth), 20.0f};
+    OPAQUERECT activateTriggerButtonRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY + spacing), static_cast<float>(controlWidth), 20.0f};
     KeyBindButton(activateTriggerButtonRec, &config.ACTIVATE_TRIGGER);
 }
 
@@ -290,9 +290,16 @@ void RayGUIConfig::CloseWindow() {
     ::CloseWindow();  // Call raylib's CloseWindow, not our method
 }
 
-bool RayGUIConfig::KeyBindButton(Rectangle bounds, int* keyValue) {
+bool RayGUIConfig::KeyBindButton(OPAQUERECT b, int* keyValue) {
     bool pressed = false;
-    
+
+    Rectangle bounds = {
+        b.x,
+        b.y,
+        b.width,
+        b.height
+    };
+
     // If this is the button we're waiting for key input on
     if (waitingForKeyInput && currentKeyBinding == keyValue) {
         // Draw the button with "Press any key..." text

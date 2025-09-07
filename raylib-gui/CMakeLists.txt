@@ -6,15 +6,15 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Add source files
+#src/main.cpp
 set(SOURCES
-    src/main.cpp
     src/config_raygui.cpp
     src/init.cpp
 )
 
 set(HEADERS
-    src/config_raygui.h
-    src/init.h
+    include/config_raygui.h
+    include/init.h
     src/raygui.h
 )
 
@@ -22,7 +22,7 @@ set(HEADERS
 # MODULE library (SHARED, but may not be linked by other binaries as deps)
 # OBJECT library (unlinked group of obj files)
 # STATIC library (OBJECT, to be linked into the executable) 
-add_executable(raylib-gui ${SOURCES} ${HEADERS})
+add_library(raylib-gui ${SOURCES} ${HEADERS})
 
 set_target_properties(raylib-gui PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
@@ -32,13 +32,13 @@ set_target_properties(raylib-gui PROPERTIES
 set(RAYLIB_DIR "C:\\libs\\raylib-5.5_win64_msvc16")
 
 # Include raylib directories
-include_directories(${RAYLIB_DIR}/include/)
+target_include_directories(raylib-gui 
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    PRIVATE 
+        ${CMAKE_CURRENT_SOURCE_DIR}/src   
+        "C:\\libs\\raylib-5.5_win64_msvc16\\include")
 
-# Define public include directories
-# target_include_directories(raylib-gui 
-#     PUBLIC
-#         ${CMAKE_CURRENT_SOURCE_DIR}/src
-# )
 target_link_directories(raylib-gui PRIVATE "C:\\libs\\raylib-5.5_win64_msvc16\\lib")
 
 # Link with raylib 

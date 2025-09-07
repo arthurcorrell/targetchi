@@ -5,6 +5,10 @@
 # ├── build
 # │   └── CMakeCache.tx
 
+# in case of missing target: 
+# cmake -B ./build -S .
+# cmake --build ./build --target targetchi
+
 
 # source variables: CMAKE_CURRENT_SOURCE_DIR (current node) and CMAKE_SOURCE_DIR (tree root)
 
@@ -23,7 +27,7 @@ endif()
 
 
 # add subdirectories with their own Cmakelists.txt
-# add_subdirectory(raylib-gui/)
+add_subdirectory(raylib-gui/)
 # add_subdirectory(bootloader/)
 
 
@@ -59,8 +63,10 @@ find_package(OpenCV REQUIRED)
 target_include_directories(targetchi PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${OpenCV_INCLUDE_DIRS}
-    ${CMAKE_SOURCE_DIR}/raylib-gui/src
+    ${CMAKE_SOURCE_DIR}/raylib-gui/include
 )
+
+# target_link_directories(targetchi PRIVATE "C:\\libs\\raylib-5.5_win64_msvc16\\lib")
 
 # PRIVATE-> if only used in .cpp, not .h files PUBLIC -> if used in any .h files, e.g for inheritance 
 target_link_libraries(targetchi 

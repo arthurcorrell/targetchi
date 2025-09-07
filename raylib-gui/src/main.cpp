@@ -1,5 +1,5 @@
-#include "config_raygui.h"   // RayGUI implementation
-#include "init.h"
+#include "../include/config_raygui.h"   // RayGUI implementation
+#include "../include/init.h"
 
 // Settings controlled by GUI
 

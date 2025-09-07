@@ -1,4 +1,4 @@
-#include "init.h"
+#include "../include/init.h"
 #include <windows.h>
 #include <hidsdi.h>
 #include <hidpi.h>

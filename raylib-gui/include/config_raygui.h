@@ -1,6 +1,5 @@
 #pragma once
 
-#include "raygui.h"
 #include <string>
 #include <functional>
 
@@ -25,6 +24,14 @@ struct AimbuddyConfig {
     int ACTIVATE_TRIGGER;      // Activate trigger key
 };
 
+//typedef to prevent header conflicts with windows header
+typedef struct OPAQUERECT {
+    float x;                // Rectangle top-left corner position x
+    float y;                // Rectangle top-left corner position y
+    float width;            // Rectangle width
+    float height;           // Rectangle height
+} OPAQUERECT;
+
 // Show the RayGUI config dialog with the given initial config
 // Returns the updated config when the user clicks Save
 AimbuddyConfig ShowRayGUIConfigDialog(const AimbuddyConfig& config);
@@ -44,7 +51,7 @@ private:
     void CloseWindow();
     
     // Helper function to create a key binding button
-    bool KeyBindButton(Rectangle bounds, int* keyValue);
+    bool KeyBindButton(OPAQUERECT bounds, int* keyValue);
     // Convert virtual key to string representation
     const char* VirtualKeyToString(int vKey);
     
