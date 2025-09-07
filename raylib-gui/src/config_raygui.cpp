@@ -84,7 +84,7 @@ AimbuddyConfig ShowRayGUIConfigDialog(const AimbuddyConfig& initialConfig) {
 // RayGUIConfig implementation
 RayGUIConfig::RayGUIConfig(const AimbuddyConfig& initialConfig, 
                            std::function<void(const AimbuddyConfig&)> onSaveCallback)
-    : config(initialConfig), saveCallback(onSaveCallback), activeTab(0) {
+    : config(initialConfig), saveCallback(onSaveCallback), activeTab(0), mouseSelector(false), configMouse(0) {
 }
 
 void RayGUIConfig::Show() {
@@ -157,16 +157,23 @@ void RayGUIConfig::DrawGUI() {
             activeTab = i;
         }
     } 
+
     
     // Content area
     Rectangle contentRect = {10.0f, 65.0f, static_cast<float>(windowWidth - 20), static_cast<float>(windowHeight - 105)};
     GuiPanel(contentRect, NULL);
+
+    // mouseSelector window
+    if (mouseSelector) {
+        activeTab = 3;
+    }
     
     // Draw the active tab content
     switch (activeTab) {
         case 0: DrawGeneralTab(); break;
         case 1: DrawAimTab(); break;
         case 2: DrawTriggerTab(); break;
+        case 3: DrawMouseSelectorDialog(); break;
     }
     
     // Save button at the bottom right
@@ -177,6 +184,17 @@ void RayGUIConfig::DrawGUI() {
             saveCallback(config);
         }
         windowShouldClose = true;
+    }
+}
+void RayGUIConfig::DrawMouseSelectorDialog() {
+    Rectangle contentRect = {10.0f, 65.0f, static_cast<float>(windowWidth - 20), static_cast<float>(windowHeight - 105)};
+    int result = GuiMessageBox(contentRect,
+        GuiIconText(ICON_CURSOR_POINTER, "Mouse Configuration"), "Select a mouse configuration", "1;2;3;4;5;6");
+
+    if (result >= 0) {
+        mouseSelector = false;
+        activeTab = 0;
+        configMouse = result;
     }
 }
 
@@ -211,7 +229,9 @@ void RayGUIConfig::DrawGeneralTab() {
     Rectangle mouseTypeLabelRec = {static_cast<float>(leftMargin), static_cast<float>(startY + spacing*3), static_cast<float>(labelWidth), 20.0f};
     GuiLabel(mouseTypeLabelRec, "Mouse Type:");
     Rectangle mouseTypeButtonRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY + spacing*3), static_cast<float>(controlWidth), 20.0f};
-    GuiButton(mouseTypeButtonRec, "Default");
+    if (GuiButton(mouseTypeButtonRec, GuiIconText(ICON_CURSOR_POINTER, "Configure Mouse"))) {
+        mouseSelector = true;
+    }
 }
 
 void RayGUIConfig::DrawAimTab() {
@@ -284,6 +304,18 @@ void RayGUIConfig::DrawTriggerTab() {
     GuiLabel(activateTriggerLabelRec, "Activate Trigger Key:");
     OPAQUERECT activateTriggerButtonRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY + spacing), static_cast<float>(controlWidth), 20.0f};
     KeyBindButton(activateTriggerButtonRec, &config.ACTIVATE_TRIGGER);
+
+    // WASD_SAFETY flag
+    Rectangle wasdSafetyLabelRec = {static_cast<float>(leftMargin), static_cast<float>(startY + spacing*2), static_cast<float>(labelWidth), 20.0f};
+    GuiLabel(wasdSafetyLabelRec, "WASD Safety:");
+    Rectangle wasdSafetyCheckboxRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY + spacing*2), static_cast<float>(controlWidth), 20.0f};
+    GuiSetStyle(SLIDER, SLIDER_PADDING, 2);
+    int sliderState = static_cast<int>(config.WASD_SAFETY);
+    if (GuiToggleSlider(wasdSafetyCheckboxRec, "ON;OFF", &sliderState)) {
+        config.WASD_SAFETY = !config.WASD_SAFETY;
+    }
+    GuiSetStyle(SLIDER, SLIDER_PADDING, 0);
+
 }
 
 void RayGUIConfig::CloseWindow() {

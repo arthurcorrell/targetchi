@@ -28,6 +28,7 @@ struct RAYLIB_GUI_API AimbuddyConfig {
     // Trigger tab
     int TOGGLE_TRIGGER;        // Toggle trigger key
     int ACTIVATE_TRIGGER;      // Activate trigger key
+    bool WASD_SAFETY; // checkbox to ensure cancelled out movement keys
 };
 
 // Show the RayGUI config dialog with the given initial config
@@ -56,6 +57,7 @@ private:
     void DrawGeneralTab();
     void DrawAimTab();
     void DrawTriggerTab();
+    void DrawMouseSelectorDialog();
     void CloseWindow();
     
     // Helper function to create a key binding button
@@ -70,6 +72,8 @@ private:
     int activeTab = 0;
     bool waitingForKeyInput = false;
     int* currentKeyBinding = nullptr;
+    bool mouseSelector = false;
+    int configMouse = 0;
     
     // Window dimensions
     const int windowWidth = 600;

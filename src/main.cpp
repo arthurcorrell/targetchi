@@ -27,7 +27,8 @@ AimbuddyConfig config = {
     2.0f / (5.0f * 0.54f), // MOVESPEED
     
     'W',                  // TOGGLE_TRIGGER
-    VK_LBUTTON           // ACTIVATE_TRIGGER (Left mouse button)
+    VK_LBUTTON,           // ACTIVATE_TRIGGER (Left mouse button)
+    true                  // WASD_SAFETY
 };
 
 // Constants derived from config
