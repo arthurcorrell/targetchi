@@ -9,13 +9,11 @@
 
 static HANDLE dev = INVALID_HANDLE_VALUE;
 
-DeviceConfig_::DeviceConfig_() {
+DeviceConfig_::DeviceConfig_() : activeHandle(false), deviceError(false) {
 
     // track whether handle is active
-    bool activeHandle = false;
 
     // track if error is thrown by handle connection
-    bool deviceError = false;
 
 }
 // finds device handle. flips activeHandle flag to true

@@ -9,13 +9,11 @@
 
 static HANDLE dev = INVALID_HANDLE_VALUE;
 
-DeviceConfig_::DeviceConfig_() {
+DeviceConfig_::DeviceConfig_() : activeHandle(false), deviceError(false) {
 
     // track whether handle is active
-    bool activeHandle = false;
 
     // track if error is thrown by handle connection
-    bool deviceError = false;
 
 }
 // finds device handle. flips activeHandle flag to true
@@ -53,17 +51,16 @@ void DeviceConfig_::startHandle() {
         
         detailData->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA);
         
-        // Get the interface detail data
         if (SetupDiGetDeviceInterfaceDetail(deviceInfoSet, &deviceInterfaceData, 
                                          detailData, requiredSize, nullptr, nullptr)) {
-            // Open the device
+            // open the device with FILE_FLAG_OVERLAPPED parameter to allow for overlapped (async) IO
             HANDLE tempHandle = CreateFile(
                 detailData->DevicePath,
                 GENERIC_READ | GENERIC_WRITE,
                 FILE_SHARE_READ | FILE_SHARE_WRITE,
                 nullptr,
                 OPEN_EXISTING,
-                FILE_FLAG_OVERLAPPED, // changed from 0
+                FILE_FLAG_OVERLAPPED, 
                 nullptr);
                 
             if (tempHandle != INVALID_HANDLE_VALUE) {
@@ -173,6 +170,7 @@ void DeviceConfig_::setOutputReport(int b1, int b2, int b3) {
     OVERLAPPED overlapped = {0};
     
     // Use WriteFile for sending to the interrupt endpoint. returns 0 when async
+    // OVERLAPPED struct makes operation async
     WriteFile(dev, reportBuffer, sizeof(reportBuffer), &bytesWritten, &overlapped);
 }
 
