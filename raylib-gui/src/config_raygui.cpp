@@ -6,6 +6,9 @@
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 
+// include globally instantiated DeviceObject
+#include "../include/init.h"
+
 // Map of virtual key codes to string representations
 static std::map<int, const char*> keyNames = {
     {0x01, "LMB"},
@@ -68,7 +71,7 @@ static std::map<int, const char*> keyNames = {
 AimbuddyConfig ShowRayGUIConfigDialog(const AimbuddyConfig& initialConfig) {
     // Create a copy of the config that will be returned
     AimbuddyConfig resultConfig = initialConfig;
-    
+
     // callback function ensures saving config only when save button is used
     auto saveCallback = [&resultConfig](const AimbuddyConfig& updatedConfig) {
         resultConfig = updatedConfig;
@@ -84,8 +87,9 @@ AimbuddyConfig ShowRayGUIConfigDialog(const AimbuddyConfig& initialConfig) {
 // RayGUIConfig implementation
 RayGUIConfig::RayGUIConfig(const AimbuddyConfig& initialConfig, 
                            std::function<void(const AimbuddyConfig&)> onSaveCallback)
-    : config(initialConfig), saveCallback(onSaveCallback), activeTab(0), mouseSelector(false), configMouse(0) {
-}
+    : config(initialConfig), saveCallback(onSaveCallback), activeTab(0), mouseSelector(false) {
+
+    }
 
 void RayGUIConfig::Show() {
     InitWindow();
@@ -178,26 +182,35 @@ void RayGUIConfig::DrawGUI() {
     
     // Save button at the bottom right
     Rectangle saveButtonRect = {static_cast<float>(windowWidth - 110), static_cast<float>(windowHeight - 30), 100.0f, 20.0f};
-    if (GuiButton(saveButtonRect, "Save & Close")) {
+    if (GuiButton(saveButtonRect, "START")) {
         // Call the save callback with the updated config
         if (saveCallback) {
             saveCallback(config);
         }
+        if (!(DeviceConfig.activeHandle)) {
+            DeviceConfig.startHandle();
+        }
+        DeviceConfig.setSaveByte(1);
         windowShouldClose = true;
     }
 }
 void RayGUIConfig::DrawMouseSelectorDialog() {
     Rectangle contentRect = {10.0f, 65.0f, static_cast<float>(windowWidth - 20), static_cast<float>(windowHeight - 105)};
     int result = GuiMessageBox(contentRect,
-        GuiIconText(ICON_CURSOR_POINTER, "Mouse Configuration"), "Select a mouse configuration", "1;2;3;4;5;6");
-
-    if (result >= 0) {
+        GuiIconText(ICON_CURSOR_POINTER, "Mouse Config"), "Select a mouse config", "BOOT;1;2;3;4;5;6;7;8");
+    if (result == 0) {
         mouseSelector = false;
         activeTab = 0;
-        configMouse = result;
+    }
+    if (result > 0) {
+        // which button to display as pressed [0, 6]
+        config.ACTIVE_MOUSE = result-1;
+
+        // send 0-indexed mouse config, -1 for no change
+        DeviceConfig.setMouseByte(config.ACTIVE_MOUSE);
     }
 }
-
+    
 void RayGUIConfig::DrawGeneralTab() {
     int startY = 85;
     int spacing = 30;
@@ -222,7 +235,7 @@ void RayGUIConfig::DrawGeneralTab() {
     GuiLabel(sensitivityLabelRec, "In-game Sensitivity:");
     float sensitivity = config.INGAME_SENSITIVITY;
     Rectangle sensitivitySliderRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY + spacing*2), static_cast<float>(controlWidth), 20.0f};
-    GuiSlider(sensitivitySliderRec, NULL, TextFormat("%.2f", sensitivity), &sensitivity, 0.1f, 10.0f);
+    GuiSlider(sensitivitySliderRec, NULL, TextFormat("%.2f", sensitivity), &sensitivity, 0.1f, 2.0f);
     config.INGAME_SENSITIVITY = sensitivity;
     
     // MOUSETYPE placeholder
@@ -231,6 +244,10 @@ void RayGUIConfig::DrawGeneralTab() {
     Rectangle mouseTypeButtonRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY + spacing*3), static_cast<float>(controlWidth), 20.0f};
     if (GuiButton(mouseTypeButtonRec, GuiIconText(ICON_CURSOR_POINTER, "Configure Mouse"))) {
         mouseSelector = true;
+        // flow one: start device handle upon opening mouse configuration
+        if (!(DeviceConfig.activeHandle)) {
+            DeviceConfig.startHandle();
+        }
     }
 }
 
@@ -319,7 +336,12 @@ void RayGUIConfig::DrawTriggerTab() {
 }
 
 void RayGUIConfig::CloseWindow() {
-    ::CloseWindow();  // Call raylib's CloseWindow, not our method
+    // windowShouldClose flag always closes device handles
+    if (DeviceConfig.activeHandle) {
+        DeviceConfig.stopHandle();
+    }
+
+    ::CloseWindow();  // scope resolution operator resolves runtime polymorphism
 }
 
 bool RayGUIConfig::KeyBindButton(OPAQUERECT b, int* keyValue) {

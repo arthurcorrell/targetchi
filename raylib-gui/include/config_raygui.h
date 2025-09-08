@@ -29,6 +29,7 @@ struct RAYLIB_GUI_API AimbuddyConfig {
     int TOGGLE_TRIGGER;        // Toggle trigger key
     int ACTIVATE_TRIGGER;      // Activate trigger key
     bool WASD_SAFETY; // checkbox to ensure cancelled out movement keys
+    int ACTIVE_MOUSE; // 0-indexed MouseType
 };
 
 // Show the RayGUI config dialog with the given initial config
@@ -73,7 +74,6 @@ private:
     bool waitingForKeyInput = false;
     int* currentKeyBinding = nullptr;
     bool mouseSelector = false;
-    int configMouse = 0;
     
     // Window dimensions
     const int windowWidth = 600;

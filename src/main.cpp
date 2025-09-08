@@ -28,7 +28,8 @@ AimbuddyConfig config = {
     
     'W',                  // TOGGLE_TRIGGER
     VK_LBUTTON,           // ACTIVATE_TRIGGER (Left mouse button)
-    true                  // WASD_SAFETY
+    true,                  // WASD_SAFETY
+    3,                    // 0-indexed MouseType
 };
 
 // Constants derived from config

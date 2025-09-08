@@ -7,11 +7,16 @@
 #include <chrono>
 #include <thread>
 
-// set up a handle to a top level collection
 static HANDLE dev = INVALID_HANDLE_VALUE;
 
-// initial function. sets device handle
-void startHandle() {    
+DeviceConfig_::DeviceConfig_() {
+
+    // track whether handle is active
+    bool activeHandle = false;
+
+}
+// finds device handle. flips activeHandle flag to true
+void DeviceConfig_::startHandle() {    
     
     // Get device info set for HID devices
     GUID hidGuid;
@@ -89,6 +94,8 @@ void startHandle() {
                     
                     // Found our device
                     dev = tempHandle;
+
+                    activeHandle = true;
                     // ended in 134
 
                     /*
@@ -119,8 +126,8 @@ void startHandle() {
     SetupDiDestroyDeviceInfoList(deviceInfoSet);
     
     if (dev == INVALID_HANDLE_VALUE) {
-        std::cerr << "Targetchi is already open or device in use by another app. Close Targetchi and other apps before retrying." << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(10));
+        std::cerr << "ERROR: Cannot find device. Make sure that device is plugged in and has been flashed" << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(5));
         exit(EXIT_FAILURE);
     }
 
@@ -128,14 +135,17 @@ void startHandle() {
 }
 
 
-void stopHandle() {
+// closes handle. flips activeHandle flag to false
+void DeviceConfig_::stopHandle() {
     if (dev != INVALID_HANDLE_VALUE) {
         CloseHandle(dev);
         dev = INVALID_HANDLE_VALUE;
+        activeHandle = false;
     }
 }
 
-void sendOutputReport(int b1, int b2, int b3) {
+// set output reports bytes 1, 2, 3 corresponding to x, y, buttons
+void DeviceConfig_::setOutputReport(int b1, int b2, int b3) {
     BYTE reportBuffer[BUFFER_SIZE] = {
         REPORT_ID,
         static_cast<BYTE>(b1),
@@ -158,7 +168,58 @@ void sendOutputReport(int b1, int b2, int b3) {
     WriteFile(dev, reportBuffer, sizeof(reportBuffer), &bytesWritten, &overlapped);
 }
 
+// set byte 1 to 0-indexed MouseType, -1 for no change
+void DeviceConfig_::setMouseByte(int b) {
+    BYTE reportBuffer[BUFFER_SIZE] = {
+        REPORT_ID,
+        static_cast<BYTE>(b),
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00
+    };
+
+    // Send HID output report
+    // if (!HidD_SetOutputReport(dev, reportBuffer, sizeof(reportBuffer))) {
+    //     std::cerr << "Failed to send HID report" << std::endl;
+    // }
+
+    DWORD bytesWritten = 0;
+    OVERLAPPED overlapped = {0};
+    
+    // Use WriteFile for sending to the interrupt endpoint. returns 0 when async
+    WriteFile(dev, reportBuffer, sizeof(reportBuffer), &bytesWritten, &overlapped);
+}
+
+// set byte 2 to non-zero value to exit configuration loop
+void DeviceConfig_::setSaveByte(int b) {
+    BYTE reportBuffer[BUFFER_SIZE] = {
+        REPORT_ID,
+        0x00,
+        static_cast<BYTE>(b),
+        0x00,
+        0x00,
+        0x00,
+        0x00
+    };
+
+    // Send HID output report
+    // if (!HidD_SetOutputReport(dev, reportBuffer, sizeof(reportBuffer))) {
+    //     std::cerr << "Failed to send HID report" << std::endl;
+    // }
+
+    DWORD bytesWritten = 0;
+    OVERLAPPED overlapped = {0};
+    
+    // Use WriteFile for sending to the interrupt endpoint. returns 0 when async
+    WriteFile(dev, reportBuffer, sizeof(reportBuffer), &bytesWritten, &overlapped);
+}
+
 // type-safe API for referencing the handle. returns currently active handle
 OPAQUEHANDLE getHandle() {
     return static_cast<OPAQUEHANDLE>(dev);
 }
+
+// instantiation that allocates memory
+DeviceConfig_ DeviceConfig;
