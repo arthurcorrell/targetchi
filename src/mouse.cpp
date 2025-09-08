@@ -8,7 +8,7 @@ ArduinoMouse::ArduinoMouse(size_t filter_length)
     x_history.resize(filter_length, 0);
     y_history.resize(filter_length, 0);
 
-    startHandle();
+    DeviceConfig.startHandle();
 
 }
 
@@ -29,16 +29,16 @@ void ArduinoMouse::move(int x, int y) {
     int smooth_x = std::accumulate(x_history.begin(), x_history.end(), 0) / filter_length;
     int smooth_y = std::accumulate(y_history.begin(), y_history.end(), 0) / filter_length;
     
-    sendOutputReport(smooth_x, smooth_y, 0);
+    DeviceConfig.setOutputReport(smooth_x, smooth_y, 0);
 }
 
 void ArduinoMouse::click() {
     double delay = dis(gen);  // Random delay between 0.01 and 0.1 seconds
     
-    sendOutputReport(0, 0, 1);
+    DeviceConfig.setOutputReport(0, 0, 1);
     std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(delay * 1000)));
 }
 
 void ArduinoMouse::close() {
-    stopHandle();
+    DeviceConfig.stopHandle();
 }
