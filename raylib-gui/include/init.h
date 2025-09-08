@@ -23,6 +23,7 @@ public:
     void setOutputReport(int b1, int b2, int b3);
 
     bool activeHandle;
+    bool deviceError;
 
 };
 

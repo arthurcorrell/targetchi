@@ -14,6 +14,9 @@ DeviceConfig_::DeviceConfig_() {
     // track whether handle is active
     bool activeHandle = false;
 
+    // track if error is thrown by handle connection
+    bool deviceError = false;
+
 }
 // finds device handle. flips activeHandle flag to true
 void DeviceConfig_::startHandle() {    
@@ -25,6 +28,8 @@ void DeviceConfig_::startHandle() {
     HDEVINFO deviceInfoSet = SetupDiGetClassDevs(&hidGuid, nullptr, nullptr, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
     if (deviceInfoSet == INVALID_HANDLE_VALUE) {
         std::cerr << "Driver Error: Failed to get device list" << std::endl;
+        deviceError = true;
+        activeHandle = false;
         return;
     }
 
@@ -96,6 +101,7 @@ void DeviceConfig_::startHandle() {
                     dev = tempHandle;
 
                     activeHandle = true;
+                    deviceError = false;
                     // ended in 134
 
                     /*
@@ -127,8 +133,10 @@ void DeviceConfig_::startHandle() {
     
     if (dev == INVALID_HANDLE_VALUE) {
         std::cerr << "ERROR: Cannot find device. Make sure that device is plugged in and has been flashed" << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(5));
-        exit(EXIT_FAILURE);
+        deviceError = true;
+        activeHandle = false;
+        // std::this_thread::sleep_for(std::chrono::seconds(5));
+        //exit(EXIT_FAILURE);
     }
 
     return;

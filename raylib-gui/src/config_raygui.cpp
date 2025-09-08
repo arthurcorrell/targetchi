@@ -87,7 +87,7 @@ AimbuddyConfig ShowRayGUIConfigDialog(const AimbuddyConfig& initialConfig) {
 // RayGUIConfig implementation
 RayGUIConfig::RayGUIConfig(const AimbuddyConfig& initialConfig, 
                            std::function<void(const AimbuddyConfig&)> onSaveCallback)
-    : config(initialConfig), saveCallback(onSaveCallback), activeTab(0), mouseSelector(false) {
+    : config(initialConfig), saveCallback(onSaveCallback), activeTab(0), mouseSelector(false), errorDialog(false), quitTargetchi(false) {
 
     }
 
@@ -190,10 +190,31 @@ void RayGUIConfig::DrawGUI() {
         if (!(DeviceConfig.activeHandle)) {
             DeviceConfig.startHandle();
         }
-        DeviceConfig.setSaveByte(1);
+        if (!(DeviceConfig.deviceError)) {
+            DeviceConfig.setSaveByte(1);
+            windowShouldClose = true;
+        } else {
+            errorDialog = true;
+        }
+    }
+    // Quit button at the bottom left
+    Rectangle quitButtonRect = {static_cast<float>(10), static_cast<float>(windowHeight - 30), 100.0f, 20.0f};
+    if (GuiButton(quitButtonRect, "QUIT")) {
+        // set windowShouldClose, which handles any still active handles
         windowShouldClose = true;
+        quitTargetchi = true;
+    }
+
+    // draw error dialog if error has been set
+    if (errorDialog) {
+        Rectangle errorRect = {contentRect.x + (contentRect.width / 3), contentRect.y + (contentRect.height / 2), (contentRect.width / 3), (contentRect.height / 3)};
+        int result = GuiMessageBox(contentRect, "#191#DRIVER ERROR", "Could not find connected device. Make sure device is connected and flashed", "OK");
+        if (result >= 0) {
+            errorDialog = false;
+        }
     }
 }
+
 void RayGUIConfig::DrawMouseSelectorDialog() {
     Rectangle contentRect = {10.0f, 65.0f, static_cast<float>(windowWidth - 20), static_cast<float>(windowHeight - 105)};
     int result = GuiMessageBox(contentRect,
@@ -243,10 +264,14 @@ void RayGUIConfig::DrawGeneralTab() {
     GuiLabel(mouseTypeLabelRec, "Mouse Type:");
     Rectangle mouseTypeButtonRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY + spacing*3), static_cast<float>(controlWidth), 20.0f};
     if (GuiButton(mouseTypeButtonRec, GuiIconText(ICON_CURSOR_POINTER, "Configure Mouse"))) {
-        mouseSelector = true;
         // flow one: start device handle upon opening mouse configuration
         if (!(DeviceConfig.activeHandle)) {
             DeviceConfig.startHandle();
+        }
+        if (!(DeviceConfig.deviceError)) {
+            mouseSelector = true;
+        } else {
+            errorDialog = true;
         }
     }
 }
@@ -342,6 +367,10 @@ void RayGUIConfig::CloseWindow() {
     }
 
     ::CloseWindow();  // scope resolution operator resolves runtime polymorphism
+
+    if (quitTargetchi) {
+        exit(EXIT_SUCCESS);
+    }
 }
 
 bool RayGUIConfig::KeyBindButton(OPAQUERECT b, int* keyValue) {

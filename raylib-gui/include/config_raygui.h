@@ -74,6 +74,8 @@ private:
     bool waitingForKeyInput = false;
     int* currentKeyBinding = nullptr;
     bool mouseSelector = false;
+    bool errorDialog = false;
+    bool quitTargetchi = false;
     
     // Window dimensions
     const int windowWidth = 600;
