@@ -19,6 +19,7 @@ private:
     int activate_move_key;
     int activate_trigger_key;
     bool wasd_safety;
+    bool debug_screenshot;
     
     void listen();
     void process(const std::string& action);

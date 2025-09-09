@@ -20,6 +20,7 @@ private:
     
     std::chrono::time_point<std::chrono::steady_clock> start_time;
     int frame_count;
+    bool debug_capture;
     
     void capture_loop();
     void capture_screen();

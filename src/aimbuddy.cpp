@@ -14,7 +14,8 @@ AimBuddy::AimBuddy(int x, int y, int xfov, int yfov, float flickspeed, float mov
       toggled_move(false),
       toggled_trigger(false),
       gui_toggled(false),
-      running(true) {
+      running(true),
+      debug_screenshot(false) {
           
     // Start listening thread
     listen_thread = std::thread(&AimBuddy::listen, this);
@@ -69,7 +70,10 @@ void AimBuddy::process(const std::string& action) {
     cv::Mat dilated;
     cv::dilate(mask, dilated, cv::Mat(), cv::Point(-1, -1), 5);
 
-    cv::imwrite("C:\\Users\\arthu\\Desktop\\targetchi\\bin\\Debugcreenshot.png", dilated);
+    // if (!debug_screenshot) {
+    //     cv::imwrite("C:\\Users\\arthu\\Desktop\\targetchi\\bin\\Debugcreenshot.png", dilated);
+    //     debug_screenshot = true;
+    // }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     

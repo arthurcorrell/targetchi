@@ -2,7 +2,7 @@
 #include <iostream>
 
 Capture::Capture(int x, int y, int xfov, int yfov) 
-    : x(x), y(y), xfov(xfov), yfov(yfov), frame_count(0), running(true) {
+    : x(x), y(y), xfov(xfov), yfov(yfov), frame_count(0), running(true), debug_capture(false) {
     
 
     // https://learn.microsoft.com/en-us/windows/win32/gdi/capturing-an-image
@@ -105,14 +105,13 @@ void Capture::capture_screen() {
     cv::Vec3b centerPixel = this->screen.at<cv::Vec3b>(centerY, centerX);
 
 
-    cv::imshow("Debug Capture", this->screen);
-    cv::waitKey(1);
+    // cv::imshow("Debug Capture", this->screen);
+    // cv::waitKey(1);
 
-    static bool saved = false;
-    if (!saved) {
-        cv::imwrite("debug_capture.png", this->screen);
-        saved = true;
-    }
+    // if (!debug_capture) {
+    //     cv::imwrite("C:\\Users\\arthu\\Desktop\\targetchi\\bin\\debug_capture.png", screen);
+    //     debug_capture = true;
+    // }
     
     // Convert BGR to BGR (OpenCV default format is BGR)
     // This step might seem redundant, but it ensures format compatibility
