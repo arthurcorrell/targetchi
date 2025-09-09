@@ -75,7 +75,8 @@ void AimBuddy::process(const std::string& action) {
     //     debug_screenshot = true;
     // }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    // cv::imshow("Debug Capture", mask);
+    // cv::waitKey(1);
     
     // Find contours
     std::vector<std::vector<cv::Point>> contours;
