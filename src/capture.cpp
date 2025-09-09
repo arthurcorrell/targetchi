@@ -10,6 +10,23 @@ Capture::Capture(int x, int y, int xfov, int yfov)
     // Start capture thread
     start_time = std::chrono::steady_clock::now();
     capture_thread = std::thread(&Capture::capture_loop, this);
+
+    // https://learn.microsoft.com/en-us/windows/win32/gdi/capturing-an-image
+
+    // device context handle for entire screen
+    HDC hScreenDC = GetDC(NULL);
+    // returns a handle to a memory DC
+    HDC hMemoryDC = CreateCompatibleDC(hScreenDC);
+    // create bitmap compatible with screen device context handle
+    // it's color format matches color format of the hScreenDC device
+    HBITMAP hBitmap = CreateCompatibleBitmap(hScreenDC, xfov, yfov);
+
+    // select the bitmap into the memory DC
+    HBITMAP image = static_cast<HBITMAP>(SelectObject(hMemoryDC, hBitmap));
+
+    // lpvBits: create buffer to store data
+    screen = cv::Mat(yfov, xfov, CV_8UC3);
+
 }
 
 Capture::~Capture() {
@@ -17,6 +34,13 @@ Capture::~Capture() {
     if (capture_thread.joinable()) {
         capture_thread.join();
     }
+    SelectObject(hMemoryDC, image);
+    DeleteObject(hBitmap);
+    
+    // called for CreateCompatibleDC
+    DeleteDC(hMemoryDC);
+    // called for GetDC
+    ReleaseDC(NULL, hScreenDC);
 }
 
 void Capture::capture_loop() {
@@ -33,42 +57,40 @@ void Capture::capture_loop() {
 }
 
 void Capture::capture_screen() {
-    // Create compatible DC for screen
-    HDC hScreenDC = GetDC(NULL);
-    HDC hMemoryDC = CreateCompatibleDC(hScreenDC);
-    
-    // Create compatible bitmap
-    HBITMAP hBitmap = CreateCompatibleBitmap(hScreenDC, xfov, yfov);
-    HBITMAP hOldBitmap = (HBITMAP)SelectObject(hMemoryDC, hBitmap);
-    
-    // Copy screen to bitmap
+
+    // performs bit block transfer- copies data from a src to dest bitmap
+    // takes handles to 2 DCs, and copies bitmap selected into src DC to bitmap selected into dest DC
+    // src: screenDC, dest: compatible DC
+    // here: copies to hMemoryDC bitmap, a bitmap of xfov * yfov, from (x, y) of the hScreenDC bitmap 
     BitBlt(hMemoryDC, 0, 0, xfov, yfov, hScreenDC, x, y, SRCCOPY);
+
+    // now image has been stored in memory. to redisplay, transfer from the dest DC to src DC
+
+    // lpbmi: &BITMAPINFO struct, usage: bi.bmiColors = DIB_RGB_COLORS
+    BITMAPINFO bmi = {0};
+    // first member: BITMAPINFOHEADER bmiHeader;
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth = xfov;
+    bmi.bmiHeader.biHeight = -yfov;  // Negative for top-down
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = 24;  // 3 bytes per pixel (BGR)
+    bmi.bmiHeader.biCompression = BI_RGB;
+    bmi.bmiHeader.biSizeImage = 0;
+    bmi.bmiHeader.biXPelsPerMeter = 0;
+    bmi.bmiHeader.biYPelsPerMeter = 0;
+    bmi.bmiHeader.biClrUsed = 0;
+    bmi.bmiHeader.biClrImportant = 0;
+    // second member: RGBQUAD bmiColors[1]
+    bmi.bmiColors[0].rgbBlue = 0;
+    bmi.bmiColors[0].rgbGreen = 0;
+    bmi.bmiColors[0].rgbRed = 0;
+    bmi.bmiColors[0].rgbReserved = 0;
+
     
-    // Get bitmap info
-    BITMAPINFOHEADER bi;
-    bi.biSize = sizeof(BITMAPINFOHEADER);
-    bi.biWidth = xfov;
-    bi.biHeight = -yfov;  // Negative height to start from top-left
-    bi.biPlanes = 1;
-    bi.biBitCount = 24;  // 3 bytes (BGR)
-    bi.biCompression = BI_RGB;
-    bi.biSizeImage = 0;
-    bi.biXPelsPerMeter = 0;
-    bi.biYPelsPerMeter = 0;
-    bi.biClrUsed = 0;
-    bi.biClrImportant = 0;
+    // retrieve data from hBitmap, which is selected into hMemoryDC
+    GetDIBits(hMemoryDC, hBitmap, 0, yfov, screen.data, &bmi, DIB_RGB_COLORS);
+
     
-    // Create OpenCV Mat
-    screen = cv::Mat(yfov, xfov, CV_8UC3);
-    
-    // Get bitmap data
-    GetDIBits(hMemoryDC, hBitmap, 0, yfov, screen.data, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
-    
-    // Clean up
-    SelectObject(hMemoryDC, hOldBitmap);
-    DeleteObject(hBitmap);
-    DeleteDC(hMemoryDC);
-    ReleaseDC(NULL, hScreenDC);
     
     // Convert BGR to BGR (OpenCV default format is BGR)
     // This step might seem redundant, but it ensures format compatibility

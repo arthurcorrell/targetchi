@@ -15,7 +15,6 @@ struct RAYLIB_GUI_API AimbuddyConfig {
     int QUIT;                  // Quit key
     int TOGGLE_KEY;            // Toggle key
     float INGAME_SENSITIVITY;  // In-game sensitivity slider
-    int MOUSETYPE;             // Mouse type (placeholder)
     
     // Aim tab
     int TOGGLE_MOVE;           // Toggle move key

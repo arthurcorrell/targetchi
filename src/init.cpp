@@ -132,7 +132,8 @@ void DeviceConfig_::startHandle() {
         std::cerr << "ERROR: Cannot find device. Make sure that device is plugged in and has been flashed" << std::endl;
         deviceError = true;
         activeHandle = false;
-        // std::this_thread::sleep_for(std::chrono::seconds(5));
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+        DeviceConfig.stopHandle();
         exit(EXIT_FAILURE);
     }
 
@@ -168,10 +169,28 @@ void DeviceConfig_::setOutputReport(int b1, int b2, int b3) {
 
     DWORD bytesWritten = 0;
     OVERLAPPED overlapped = {0};
+    overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
     
     // Use WriteFile for sending to the interrupt endpoint. returns 0 when async
     // OVERLAPPED struct makes operation async
     WriteFile(dev, reportBuffer, sizeof(reportBuffer), &bytesWritten, &overlapped);
+    WaitForSingleObject(overlapped.hEvent, INFINITE); // Wait for completion
+    CloseHandle(overlapped.hEvent);
+    // std::this_thread::sleep_for(std::chrono::milliseconds(1));
+ 
+    /*
+    POSSIBLE CONSIDERATIONS:
+    bytesWritten must be NULL when hFile is async
+    Use GetOverlappedResult func to get number of bytes written
+    WriteFile may return b4 write operation is complete
+    WriteFile may fail with ERROR_INVALID_USER_BUFFER or ERROR_NOT_ENOUGH_MEMORY when too many async IO reqs
+    */
+
+    /*
+    TO ENFORCE SYNCHRONOUS IO:
+    init hEvent handle for OVERLAPPED, created with CreateEvent. set to a signaled state when operation is complete
+
+    */
 }
 
 // set byte 1 to 0-indexed MouseType, -1 for no change
@@ -210,10 +229,6 @@ void DeviceConfig_::setSaveByte(int b) {
         0x00
     };
 
-    // Send HID output report
-    // if (!HidD_SetOutputReport(dev, reportBuffer, sizeof(reportBuffer))) {
-    //     std::cerr << "Failed to send HID report" << std::endl;
-    // }
 
     DWORD bytesWritten = 0;
     OVERLAPPED overlapped = {0};

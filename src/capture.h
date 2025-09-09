@@ -13,7 +13,7 @@
 class Capture {
 private:
     cv::Mat screen;
-    cv::Mat image;
+    //cv::Mat image;
     std::mutex lock;
     std::thread capture_thread;
     std::atomic<bool> running;
@@ -24,6 +24,17 @@ private:
     void capture_loop();
     void capture_screen();
     void update_fps();
+
+    // device context handle for entire screen
+    HDC hScreenDC;
+    // returns a handle to a memory DC
+    HDC hMemoryDC;
+    // create bitmap compatible with screen device context handle
+    // it's color format matches color format of the hScreenDC device
+    HBITMAP hBitmap;
+
+    // select the bitmap into the memory DC
+    HBITMAP image;
 
 public:
     Capture(int x, int y, int xfov, int yfov);

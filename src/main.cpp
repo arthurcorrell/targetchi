@@ -16,13 +16,13 @@
 // Default configuration
 AimbuddyConfig config = {
     'P',                  // QUIT
-    VK_MENU,             // TOGGLE_KEY (ALT)
+    'Q',             // TOGGLE_KEY (ALT)
     0.54f,               // INGAME_SENSITIVITY
     
-    'Q',                  // TOGGLE_MOVE
-    VK_RBUTTON,          // ACTIVATE_MOVE (Right mouse button)
-    35,                  // XFOV
-    31,                  // YFOV
+    'W',                  // TOGGLE_MOVE
+    'E',          // ACTIVATE_MOVE (Right mouse button)
+    99,                  // XFOV
+    99,                  // YFOV
     5.0f,                // NEW_FLICKSPEED
     2.0f / (5.0f * 0.54f), // MOVESPEED
     
@@ -90,7 +90,7 @@ int main(int argc, char* argv[]) {
             std::cout << "Status trigger " << status_trigger << std::endl;
             std::cout << std::flush;
             
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
     }
     catch (const std::exception& e) {
