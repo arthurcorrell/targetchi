@@ -30,12 +30,12 @@ public:
     std::atomic<bool> gui_toggled;
     
     // Color thresholds for detection
-    static constexpr int LOWER_COLOR_H = 140;
-    static constexpr int LOWER_COLOR_S = 120;
-    static constexpr int LOWER_COLOR_V = 180;
-    static constexpr int UPPER_COLOR_H = 160;
-    static constexpr int UPPER_COLOR_S = 200;
-    static constexpr int UPPER_COLOR_V = 255;
+    static constexpr int LOWER_COLOR_H = 140; // better than 135
+    static constexpr int LOWER_COLOR_S = 120; // better than 10, filters more
+    static constexpr int LOWER_COLOR_V = 173; // -> 173, old: 180
+    static constexpr int UPPER_COLOR_H = 157; // -> 157, old: 160
+    static constexpr int UPPER_COLOR_S = 255; // -> 255, old: 200
+    static constexpr int UPPER_COLOR_V = 255; // -> 199 to remove KJ molly, old: 255
     
     float flickspeed;
     float movespeed;

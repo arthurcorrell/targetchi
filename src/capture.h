@@ -24,8 +24,10 @@ private:
     void capture_loop();
     void capture_screen();
     void update_fps();
+    void save_debug_frame();
 
     // device context handle for entire screen
+    HWND hwnd;
     HDC hScreenDC;
     // returns a handle to a memory DC
     HDC hMemoryDC;

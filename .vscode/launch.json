@@ -8,7 +8,7 @@
             "type": "cppvsdbg",
             "request": "launch",
             "name": "Debug C++ Executable",
-            "program": "${workspaceFolder}/build/Debug/${input:executableName}.exe",
+            "program": "${workspaceFolder}/bin/Debug/${input:executableName}.exe",
             "cwd": "${workspaceFolder}/build/Debug",
             "stopAtEntry": true,
         }
@@ -19,7 +19,7 @@
             "id": "executableName",
             "description": "Select the executable to debug",
             "options": [
-                "aimbuddy"
+                "targetchi"
             ]
         }
     ]

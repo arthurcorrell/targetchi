@@ -68,6 +68,10 @@ void AimBuddy::process(const std::string& action) {
     // Dilate to improve contour detection
     cv::Mat dilated;
     cv::dilate(mask, dilated, cv::Mat(), cv::Point(-1, -1), 5);
+
+    cv::imwrite("C:\\Users\\arthu\\Desktop\\targetchi\\bin\\Debugcreenshot.png", dilated);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     
     // Find contours
     std::vector<std::vector<cv::Point>> contours;
