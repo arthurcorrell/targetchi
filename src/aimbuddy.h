@@ -48,10 +48,9 @@ public:
     static constexpr int UPPER_COLOR_S = 255; // -> 255, old: 200
     static constexpr int UPPER_COLOR_V = 255; // -> 199 to remove KJ molly, old: 255
     
-    float flickspeed;
     float movespeed;
     
-    AimBuddy(int x, int y, int xfov, int yfov, float flickspeed, float movespeed,
+    AimBuddy(int x, int y, int xfov, int yfov, float movespeed,
             int activate_move_key = VK_RBUTTON, int activate_trigger_key = VK_LBUTTON);
     ~AimBuddy();
     

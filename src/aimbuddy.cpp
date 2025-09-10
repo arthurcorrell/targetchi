@@ -4,10 +4,9 @@
 #include <iostream>
 #include <Windows.h>
 
-AimBuddy::AimBuddy(int x, int y, int xfov, int yfov, float flickspeed, float movespeed,
+AimBuddy::AimBuddy(int x, int y, int xfov, int yfov, float movespeed,
              int activate_move_key, int activate_trigger_key)
     : grabber(x, y, xfov, yfov), 
-      flickspeed(flickspeed), 
       movespeed(movespeed),
       activate_move_key(activate_move_key),
       activate_trigger_key(activate_trigger_key),

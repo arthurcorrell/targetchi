@@ -150,7 +150,14 @@ void DeviceConfig_::stopHandle() {
     }
 }
 
-// set output reports bytes 1, 2, 3 corresponding to x, y, buttons
+/*
+set output reports bytes 1, 2, 3
+Byte 1: 0-indexed mouseType
+Byte 2: Mouse polling rate 8, 4, 2, 1
+Byte 3: movespeed [0-100] (as float)
+
+Set to -1 if no change
+*/
 void DeviceConfig_::setOutputReport(int b1, int b2, int b3) {
     BYTE reportBuffer[BUFFER_SIZE] = {
         REPORT_ID,
@@ -182,40 +189,16 @@ void DeviceConfig_::setOutputReport(int b1, int b2, int b3) {
     CloseHandle(overlapped.hEvent);
 }
 
-// set byte 1 to 0-indexed MouseType, -1 for no change
-void DeviceConfig_::setMouseByte(int b) {
-    BYTE reportBuffer[BUFFER_SIZE] = {
-        REPORT_ID,
-        static_cast<BYTE>(b),
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00
-    };
-
-    // Send HID output report
-    // if (!HidD_SetOutputReport(dev, reportBuffer, sizeof(reportBuffer))) {
-    //     std::cerr << "Failed to send HID report" << std::endl;
-    // }
-
-    DWORD bytesWritten = 0;
-    OVERLAPPED overlapped = {0};
-    
-    // Use WriteFile for sending to the interrupt endpoint. returns 0 when async
-    WriteFile(dev, reportBuffer, sizeof(reportBuffer), &bytesWritten, &overlapped);
-}
-
-// set byte 2 to non-zero value to exit configuration loop
+// set byte 6 to 169 to exit configuration loop
 void DeviceConfig_::setSaveByte(int b) {
     BYTE reportBuffer[BUFFER_SIZE] = {
         REPORT_ID,
         0x00,
-        static_cast<BYTE>(b),
         0x00,
         0x00,
         0x00,
-        0x00
+        0x00,
+        static_cast<BYTE>(b)
     };
 
     // Send HID output report

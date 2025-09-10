@@ -17,23 +17,20 @@
 AimbuddyConfig config = {
     'P',                  // QUIT
     'Q',             // TOGGLE_KEY (ALT)
-    0.54f,               // INGAME_SENSITIVITY
     
     'W',                  // TOGGLE_MOVE
     'E',          // ACTIVATE_MOVE (Right mouse button)
     99,                  // XFOV
     99,                  // YFOV
-    5.0f,                // NEW_FLICKSPEED
     2.0f / (5.0f * 0.54f), // MOVESPEED
     
     'W',                  // TOGGLE_TRIGGER
     VK_LBUTTON,           // ACTIVATE_TRIGGER (Left mouse button)
     true,                  // WASD_SAFETY
     3,                    // 0-indexed MouseType
+    0                    // color masking color: 0=p, 1=r, 2=y
 };
 
-// Constants derived from config
-float FLICKSPEED;
 
 void checkBackendCV() {
     // Increase log level to see backend information
@@ -91,8 +88,6 @@ int main(int argc, char* argv[]) {
     // Call blocking GUI to populate config
     config = ShowRayGUIConfigDialog(config);
     
-    // Update derived values
-    FLICKSPEED = config.NEW_FLICKSPEED;
     
     // Get screen dimensions
     int screen_width = GetSystemMetrics(SM_CXSCREEN);
@@ -102,7 +97,7 @@ int main(int argc, char* argv[]) {
     int CENTER_Y = screen_height / 2;
     
     AimBuddy aimbuddy(CENTER_X - config.XFOV / 2, CENTER_Y - config.YFOV / 2, 
-                     config.XFOV, config.YFOV, FLICKSPEED, config.MOVESPEED,
+                     config.XFOV, config.YFOV, config.MOVESPEED,
                      config.ACTIVATE_MOVE, config.ACTIVATE_TRIGGER);
     
     // std::cout << "Targetchi started with configured settings" << std::endl;

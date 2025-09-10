@@ -194,49 +194,6 @@ void DeviceConfig_::setOutputReport(int b1, int b2, int b3) {
     */
 }
 
-// set byte 1 to 0-indexed MouseType, -1 for no change
-void DeviceConfig_::setMouseByte(int b) {
-    BYTE reportBuffer[BUFFER_SIZE] = {
-        REPORT_ID,
-        static_cast<BYTE>(b),
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00
-    };
-
-    // Send HID output report
-    // if (!HidD_SetOutputReport(dev, reportBuffer, sizeof(reportBuffer))) {
-    //     std::cerr << "Failed to send HID report" << std::endl;
-    // }
-
-    DWORD bytesWritten = 0;
-    OVERLAPPED overlapped = {0};
-    
-    // Use WriteFile for sending to the interrupt endpoint. returns 0 when async
-    WriteFile(dev, reportBuffer, sizeof(reportBuffer), &bytesWritten, &overlapped);
-}
-
-// set byte 2 to non-zero value to exit configuration loop
-void DeviceConfig_::setSaveByte(int b) {
-    BYTE reportBuffer[BUFFER_SIZE] = {
-        REPORT_ID,
-        0x00,
-        static_cast<BYTE>(b),
-        0x00,
-        0x00,
-        0x00,
-        0x00
-    };
-
-
-    DWORD bytesWritten = 0;
-    OVERLAPPED overlapped = {0};
-    
-    // Use WriteFile for sending to the interrupt endpoint. returns 0 when async
-    WriteFile(dev, reportBuffer, sizeof(reportBuffer), &bytesWritten, &overlapped);
-}
 
 // type-safe API for referencing the handle. returns currently active handle
 OPAQUEHANDLE getHandle() {

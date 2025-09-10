@@ -14,14 +14,12 @@ struct RAYLIB_GUI_API AimbuddyConfig {
     // General tab
     int QUIT;                  // Quit key
     int TOGGLE_KEY;            // Toggle key
-    float INGAME_SENSITIVITY;  // In-game sensitivity slider
     
     // Aim tab
     int TOGGLE_MOVE;           // Toggle move key
     int ACTIVATE_MOVE;         // Activate move key
     int XFOV;                  // X field of view
     int YFOV;                  // Y field of view
-    float NEW_FLICKSPEED;      // Flick speed
     float MOVESPEED;           // Move speed
     
     // Trigger tab
@@ -29,6 +27,7 @@ struct RAYLIB_GUI_API AimbuddyConfig {
     int ACTIVATE_TRIGGER;      // Activate trigger key
     bool WASD_SAFETY; // checkbox to ensure cancelled out movement keys
     int ACTIVE_MOUSE; // 0-indexed MouseType
+    int COLOR_MASK; // 0=P, 1=R, 2=Y for color masking
 };
 
 // Show the RayGUI config dialog with the given initial config
@@ -75,6 +74,9 @@ private:
     bool mouseSelector = false;
     bool errorDialog = false;
     bool quitTargetchi = false;
+    int spinnerValue1 = 0;
+    int spinnerValue2 = 0;
+    bool showPollingInfoBox = false;
     
     // Window dimensions
     const int windowWidth = 600;

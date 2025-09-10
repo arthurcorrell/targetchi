@@ -87,7 +87,8 @@ AimbuddyConfig ShowRayGUIConfigDialog(const AimbuddyConfig& initialConfig) {
 // RayGUIConfig implementation
 RayGUIConfig::RayGUIConfig(const AimbuddyConfig& initialConfig, 
                            std::function<void(const AimbuddyConfig&)> onSaveCallback)
-    : config(initialConfig), saveCallback(onSaveCallback), activeTab(0), mouseSelector(false), errorDialog(false), quitTargetchi(false) {
+    : config(initialConfig), saveCallback(onSaveCallback), activeTab(0), mouseSelector(false), 
+    errorDialog(false), quitTargetchi(false),  spinnerValue1(0), spinnerValue2(0), showPollingInfoBox(false) {
 
     }
 
@@ -191,7 +192,7 @@ void RayGUIConfig::DrawGUI() {
             DeviceConfig.startHandle();
         }
         if (!(DeviceConfig.deviceError)) {
-            DeviceConfig.setSaveByte(1);
+            DeviceConfig.setOutputReport(config.ACTIVE_MOUSE, spinnerValue2, static_cast<int>(10*config.MOVESPEED));
             windowShouldClose = true;
         } else {
             errorDialog = true;
@@ -201,16 +202,30 @@ void RayGUIConfig::DrawGUI() {
     Rectangle quitButtonRect = {static_cast<float>(10), static_cast<float>(windowHeight - 30), 100.0f, 20.0f};
     if (GuiButton(quitButtonRect, "QUIT")) {
         // set windowShouldClose, which handles any still active handles
+        DeviceConfig.setOutputReport(config.ACTIVE_MOUSE, spinnerValue2, static_cast<int>(10*config.MOVESPEED));
         windowShouldClose = true;
         quitTargetchi = true;
     }
 
+    // DRAW DIALOGS to cover other rendered content
+
     // draw error dialog if error has been set
     if (errorDialog) {
-        Rectangle errorRect = {contentRect.x + (contentRect.width / 3), contentRect.y + (contentRect.height / 2), (contentRect.width / 3), (contentRect.height / 3)};
-        int result = GuiMessageBox(contentRect, "#191#DRIVER ERROR", "Could not find connected device. Make sure device is connected and flashed", "OK");
+        Rectangle errorRect = {contentRect.x + (contentRect.width / 4), contentRect.y + (contentRect.height / 4), (contentRect.width / 2), (contentRect.height / 2)};
+        int result = GuiMessageBox(contentRect, "#191#DRIVER ERROR", "Could not find connected device", "OK");
         if (result >= 0) {
             errorDialog = false;
+        }
+    }
+
+    // draw info box dialog
+    if (showPollingInfoBox) {
+        Rectangle infoRect = {contentRect.x + (contentRect.width / 4), contentRect.y + (contentRect.height / 4), (contentRect.width / 2), (contentRect.height / 2)};
+        int result = GuiMessageBox(infoRect,
+            "#191#INFO", "How often the Arduino sends inputs", "OK");
+
+        if (result >= 0) {
+            showPollingInfoBox = false;
         }
     }
 }
@@ -224,11 +239,11 @@ void RayGUIConfig::DrawMouseSelectorDialog() {
         activeTab = 0;
     }
     if (result > 0) {
-        // which button to display as pressed [0, 6]
+        // which button to display as pressed [0, 8]
         config.ACTIVE_MOUSE = result-1;
 
         // send 0-indexed mouse config, -1 for no change
-        DeviceConfig.setMouseByte(config.ACTIVE_MOUSE);
+        DeviceConfig.setOutputReport(config.ACTIVE_MOUSE, -1, -1);
     }
 }
     
@@ -246,24 +261,38 @@ void RayGUIConfig::DrawGeneralTab() {
     KeyBindButton(quitButtonRec, &config.QUIT);
     
     // TOGGLE_KEY binding
-    Rectangle toggleKeyLabelRec = {static_cast<float>(leftMargin), static_cast<float>(startY + spacing), static_cast<float>(labelWidth), 20.0f};
-    GuiLabel(toggleKeyLabelRec, "Toggle Key:");
-    OPAQUERECT toggleKeyButtonRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY + spacing), static_cast<float>(controlWidth), 20.0f};
-    KeyBindButton(toggleKeyButtonRec, &config.TOGGLE_KEY);
+    // Rectangle toggleKeyLabelRec = {static_cast<float>(leftMargin), static_cast<float>(startY + spacing), static_cast<float>(labelWidth), 20.0f};
+    // GuiLabel(toggleKeyLabelRec, "Toggle Key:");
+    // OPAQUERECT toggleKeyButtonRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY + spacing), static_cast<float>(controlWidth), 20.0f};
+    // KeyBindButton(toggleKeyButtonRec, &config.TOGGLE_KEY);
+
+    // COLOR_MASK spinner
+    char* color_modes[] {"PURPLE", "RED", "YELLOW"};
+    Rectangle colorMaskRec = {static_cast<float>(leftMargin), static_cast<float>(startY + spacing), static_cast<float>(labelWidth), 20.0f};
+    GuiLabel(colorMaskRec, "Color Mode:");
+    Rectangle colorMaskButtonRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY + spacing), static_cast<float>(controlWidth), 20.0f};
+    GuiSpinner(colorMaskButtonRec, color_modes[config.COLOR_MASK], &spinnerValue1, 0, 2, false);
+    config.COLOR_MASK = spinnerValue1;
     
-    // INGAME_SENSITIVITY slider
-    Rectangle sensitivityLabelRec = {static_cast<float>(leftMargin), static_cast<float>(startY + spacing*2), static_cast<float>(labelWidth), 20.0f};
-    GuiLabel(sensitivityLabelRec, "In-game Sensitivity:");
-    float sensitivity = config.INGAME_SENSITIVITY;
-    Rectangle sensitivitySliderRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY + spacing*2), static_cast<float>(controlWidth), 20.0f};
-    GuiSlider(sensitivitySliderRec, NULL, TextFormat("%.2f", sensitivity), &sensitivity, 0.1f, 2.0f);
-    config.INGAME_SENSITIVITY = sensitivity;
-    
+    // MINIMUM_POLLING_RATE spinner
+    char* polling_modes[] {"125 Hz", "250 Hz", "500 Hz", "1000 Hz"};
+    Rectangle pollingRec = {static_cast<float>(leftMargin), static_cast<float>(startY + spacing*2), static_cast<float>(labelWidth), 20.0f};
+    GuiLabel(pollingRec, "Mouse Polling Rate:");
+    Rectangle pollingButtonRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY + spacing*2), static_cast<float>(controlWidth), 20.0f};
+    GuiSpinner(pollingButtonRec, polling_modes[spinnerValue2], &spinnerValue2, 0, 3, false);
+
+    // MINIMUM_POLLING_RATE infobox
+    Rectangle pollingInfoBox = {pollingButtonRec.x + static_cast<float>(controlWidth) + 5.0f, pollingButtonRec.y, 20.0f, 20.0f };
+    if (GuiButton(pollingInfoBox, "#191#")) {
+        showPollingInfoBox = true;
+    }
+
+
     // MOUSETYPE placeholder
     Rectangle mouseTypeLabelRec = {static_cast<float>(leftMargin), static_cast<float>(startY + spacing*3), static_cast<float>(labelWidth), 20.0f};
     GuiLabel(mouseTypeLabelRec, "Mouse Type:");
     Rectangle mouseTypeButtonRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY + spacing*3), static_cast<float>(controlWidth), 20.0f};
-    if (GuiButton(mouseTypeButtonRec, GuiIconText(ICON_CURSOR_POINTER, "Configure Mouse"))) {
+    if (GuiButton(mouseTypeButtonRec, "SELECT MOUSE")) {
         // flow one: start device handle upon opening mouse configuration
         if (!(DeviceConfig.activeHandle)) {
             DeviceConfig.startHandle();
@@ -311,19 +340,11 @@ void RayGUIConfig::DrawAimTab() {
     GuiSlider(yfovSliderRec, NULL, TextFormat("%d", config.YFOV), &yfov, 10.0f, 100.0f);
     config.YFOV = static_cast<int>(yfov);
     
-    // NEW_FLICKSPEED slider
-    Rectangle flickSpeedLabelRec = {static_cast<float>(leftMargin), static_cast<float>(startY + spacing*4), static_cast<float>(labelWidth), 20.0f};
-    GuiLabel(flickSpeedLabelRec, "Flick Speed:");
-    float flickSpeed = config.NEW_FLICKSPEED;
-    Rectangle flickSpeedSliderRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY + spacing*4), static_cast<float>(controlWidth), 20.0f};
-    GuiSlider(flickSpeedSliderRec, NULL, TextFormat("%.1f", flickSpeed), &flickSpeed, 1.0f, 10.0f);
-    config.NEW_FLICKSPEED = flickSpeed;
-    
     // MOVESPEED slider
-    Rectangle moveSpeedLabelRec = {static_cast<float>(leftMargin), static_cast<float>(startY + spacing*5), static_cast<float>(labelWidth), 20.0f};
+    Rectangle moveSpeedLabelRec = {static_cast<float>(leftMargin), static_cast<float>(startY + spacing*4), static_cast<float>(labelWidth), 20.0f};
     GuiLabel(moveSpeedLabelRec, "Move Speed:");
     float moveSpeed = config.MOVESPEED;
-    Rectangle moveSpeedSliderRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY + spacing*5), static_cast<float>(controlWidth), 20.0f};
+    Rectangle moveSpeedSliderRec = {static_cast<float>(leftMargin + labelWidth), static_cast<float>(startY + spacing*4), static_cast<float>(controlWidth), 20.0f};
     GuiSlider(moveSpeedSliderRec, NULL, TextFormat("%.2f", moveSpeed), &moveSpeed, 0.1f, 10.0f);
     config.MOVESPEED = moveSpeed;
 }
@@ -361,13 +382,18 @@ void RayGUIConfig::DrawTriggerTab() {
 }
 
 void RayGUIConfig::CloseWindow() {
-    // windowShouldClose flag always closes device handles
+    // set save byte if targetchi main thread will run after
+    if (!(quitTargetchi)) {
+        DeviceConfig.setSaveByte(169);
+    }
+    // always close all device handles
     if (DeviceConfig.activeHandle) {
         DeviceConfig.stopHandle();
     }
-
+    
     ::CloseWindow();  // scope resolution operator resolves runtime polymorphism
 
+    // dont unlock device if targetchi is being quit, this allows for renewed config upon restart
     if (quitTargetchi) {
         exit(EXIT_SUCCESS);
     }

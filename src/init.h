@@ -18,8 +18,6 @@ public:
     void stopHandle();
     OPAQUEHANDLE getHandle();
 
-    void setMouseByte(int b);
-    void setSaveByte(int b);
     void setOutputReport(int b1, int b2, int b3);
 
     bool activeHandle;
