@@ -54,8 +54,8 @@ int main(int argc, char* argv[]) {
                      config.XFOV, config.YFOV, FLICKSPEED, config.MOVESPEED,
                      config.ACTIVATE_MOVE, config.ACTIVATE_TRIGGER);
     
-    std::cout << "Targetchi started with configured settings" << std::endl;
-    std::cout << "Press " << (char)config.QUIT << " to quit" << std::endl;
+    // std::cout << "Targetchi started with configured settings" << std::endl;
+    // std::cout << "Press " << (char)config.QUIT << " to quit" << std::endl;
     
     std::string status_move = "Disabled";
     std::string status_trigger = "Disabled";
@@ -86,20 +86,20 @@ int main(int argc, char* argv[]) {
                     status_trigger = aimbuddy.toggled_trigger ? "Enabled " : "Disabled";
                 }
             }
-            std::cout << "Status move: " << status_move << std::endl;
-            std::cout << "Status trigger " << status_trigger << std::endl;
-            std::cout << std::flush;
+            // std::cout << "Status move: " << status_move << std::endl;
+            // std::cout << "Status trigger " << status_trigger << std::endl;
+            // std::cout << std::flush;
             
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
     }
     catch (const std::exception& e) {
-        std::cout << "Error:";
-        std::cout << std::endl;
+        // std::cout << "Error:";
+        // std::cout << std::endl;
     }
     
-    std::cout << "Exiting" << std::endl;
-    std::cout << std::endl;
+    // std::cout << "Exiting" << std::endl;
+    // std::cout << std::endl;
     
     running = false;
     if (interrupt_thread.joinable()) {

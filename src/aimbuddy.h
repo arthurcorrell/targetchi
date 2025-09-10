@@ -20,9 +20,12 @@ private:
     int activate_trigger_key;
     bool wasd_safety;
     bool debug_screenshot;
+    int frame_count;
+    std::chrono::time_point<std::chrono::steady_clock> start_time;
     
     void listen();
     void process(const std::string& action);
+    void show_fps();
 
 public:
     Capture grabber;

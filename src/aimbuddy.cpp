@@ -15,7 +15,10 @@ AimBuddy::AimBuddy(int x, int y, int xfov, int yfov, float flickspeed, float mov
       toggled_trigger(false),
       gui_toggled(false),
       running(true),
-      debug_screenshot(false) {
+      debug_screenshot(false), 
+      frame_count(0) {
+    
+    start_time = std::chrono::steady_clock::now();
           
     // Start listening thread
     listen_thread = std::thread(&AimBuddy::listen, this);
@@ -42,6 +45,19 @@ void AimBuddy::toggle_trigger() {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
 }
 
+void AimBuddy::show_fps() {
+    frame_count++;
+    auto current_time = std::chrono::steady_clock::now();
+    auto elapsed_time = std::chrono::duration_cast<std::chrono::seconds>(current_time - start_time).count();
+    
+    if (elapsed_time >= 1) {
+        double fps = frame_count / static_cast<double>(elapsed_time);
+        std::cout << " - FPS: " << static_cast<int>(fps) << "\r" << std::flush;
+        frame_count = 0;
+        start_time = current_time;
+    }
+}
+
 void AimBuddy::listen() {
     while (running) {
         if ((GetAsyncKeyState(activate_move_key) & 0x8000) && toggled_move) {
@@ -51,11 +67,12 @@ void AimBuddy::listen() {
             process("click");
         }
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));  // Reduce CPU usage
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));  // limit to 200 fps
     }
 }
 
 void AimBuddy::process(const std::string& action) {
+    show_fps();
     cv::Mat screen = grabber.get_screen();
     cv::Mat hsv;
     cv::cvtColor(screen, hsv, cv::COLOR_BGR2HSV);

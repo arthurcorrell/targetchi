@@ -23,9 +23,9 @@ Capture::Capture(int x, int y, int xfov, int yfov)
     // HBITMAP image = static_cast<HBITMAP>();
     SelectObject(hMemoryDC, hBitmap);
 
-    std::cout << "hScreenDC valid: " << (hScreenDC != NULL ? "yes" : "NO") << std::endl;
-    std::cout << "hMemoryDC valid: " << (hMemoryDC != NULL ? "yes" : "NO") << std::endl;
-    std::cout << "hBitmap valid: " << (hBitmap != NULL ? "yes" : "NO") << std::endl;
+    // std::cout << "hScreenDC valid: " << (hScreenDC != NULL ? "yes" : "NO") << std::endl;
+    // std::cout << "hMemoryDC valid: " << (hMemoryDC != NULL ? "yes" : "NO") << std::endl;
+    // std::cout << "hBitmap valid: " << (hBitmap != NULL ? "yes" : "NO") << std::endl;
     
     // Start capture thread
     start_time = std::chrono::steady_clock::now();
@@ -48,16 +48,18 @@ Capture::~Capture() {
     ReleaseDC(NULL, hScreenDC);
 }
 
+// captures frames at 200fps
 void Capture::capture_loop() {
     while (running) {
         {
+            // mutex goes out of scope once screen is captured
             std::lock_guard<std::mutex> guard(lock);
             capture_screen();
         }
-        update_fps();
+        //update_fps();
         
         // Small sleep to avoid consuming too much CPU
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(6));
     }
 }
 
@@ -67,9 +69,9 @@ void Capture::capture_screen() {
     // takes handles to 2 DCs, and copies bitmap selected into src DC to bitmap selected into dest DC
     // src: screenDC, dest: compatible DC
     // here: copies to hMemoryDC bitmap, a bitmap of xfov * yfov, from (x, y) of the hScreenDC bitmap 
-    //BitBlt(hMemoryDC, 0, 0, xfov, yfov, hScreenDC, x, y, SRCCOPY);
+    BitBlt(hMemoryDC, 0, 0, xfov, yfov, hScreenDC, x, y, SRCCOPY);
     // stretchBlt: allows for scaling of screen to second (xfov, yfov)
-    StretchBlt(this->hMemoryDC, 0, 0, this->xfov, this->yfov, this->hScreenDC, this->x, this->y, this->xfov, this->yfov, SRCCOPY);
+    //StretchBlt(this->hMemoryDC, 0, 0, this->xfov, this->yfov, this->hScreenDC, this->x, this->y, this->xfov, this->yfov, SRCCOPY);
     // now image has been stored in memory. to redisplay, transfer from the dest DC to src DC
 
     // lpbmi: &BITMAPINFO struct, usage: bi.bmiColors = DIB_RGB_COLORS
@@ -100,9 +102,9 @@ void Capture::capture_screen() {
     GetDIBits(this->hMemoryDC, this->hBitmap, 0, this->yfov, this->screen.data, &bmi, DIB_RGB_COLORS);
 
     // Check pixel values at center
-    int centerX = this->xfov / 2;
-    int centerY = this->yfov / 2;
-    cv::Vec3b centerPixel = this->screen.at<cv::Vec3b>(centerY, centerX);
+    // int centerX = this->xfov / 2;
+    // int centerY = this->yfov / 2;
+    // cv::Vec3b centerPixel = this->screen.at<cv::Vec3b>(centerY, centerX);
 
 
     // cv::imshow("Debug Capture", this->screen);
@@ -122,7 +124,7 @@ void Capture::save_debug_frame() {
     static int frame_number = 0;
     std::string filename = "debug_frame_" + std::to_string(frame_number++) + ".png";
     cv::imwrite(filename, screen);
-    std::cout << "Saved debug frame to " << filename << std::endl;
+    // std::cout << "Saved debug frame to " << filename << std::endl;
 }
 
 void Capture::update_fps() {

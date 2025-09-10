@@ -25,7 +25,7 @@ void DeviceConfig_::startHandle() {
     
     HDEVINFO deviceInfoSet = SetupDiGetClassDevs(&hidGuid, nullptr, nullptr, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
     if (deviceInfoSet == INVALID_HANDLE_VALUE) {
-        std::cerr << "Driver Error: Failed to get device list" << std::endl;
+        // std::cerr << "Driver Error: Failed to get device list" << std::endl;
         deviceError = true;
         activeHandle = false;
         return;
@@ -129,7 +129,7 @@ void DeviceConfig_::startHandle() {
     SetupDiDestroyDeviceInfoList(deviceInfoSet);
     
     if (dev == INVALID_HANDLE_VALUE) {
-        std::cerr << "ERROR: Cannot find device. Make sure that device is plugged in and has been flashed" << std::endl;
+        // std::cerr << "ERROR: Cannot find device. Make sure that device is plugged in and has been flashed" << std::endl;
         deviceError = true;
         activeHandle = false;
         std::this_thread::sleep_for(std::chrono::seconds(5));
