@@ -134,6 +134,7 @@ void DeviceConfig_::startHandle() {
         activeHandle = false;
         std::this_thread::sleep_for(std::chrono::seconds(5));
         DeviceConfig.stopHandle();
+        std::cout << "DRIVER ERROR: couldnt refind the handle" << std::endl;
         exit(EXIT_FAILURE);
     }
 

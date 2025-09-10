@@ -86,7 +86,7 @@ void checkBackendCV() {
 
 int main(int argc, char* argv[]) {
 
-    checkBackendCV();
+    //checkBackendCV();
 
     // Call blocking GUI to populate config
     config = ShowRayGUIConfigDialog(config);

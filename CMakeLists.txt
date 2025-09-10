@@ -60,6 +60,10 @@ add_executable(targetchi ${SOURCES} ${HEADERS})
 
 set_target_properties(targetchi PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
+# flags: /O2 = max seed /Ob2 = exand inline functions /GL = whoe rogram otimization /LTG = works with /GL to otimize during linking, gets rid of dulicate code
+# additional flags: /Gy = remove unused functions /Oy = faster but harder to debug /fp:fast = float optimization
+# set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Ob2 /GL")
+# set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /LTCG")
 
 # Sets OpenCV_DIR to the path containing OpenCVConfig.cmake
 set(OpenCV_DIR "C:/libs/opencv/build/x64/vc16/lib") 
@@ -90,3 +94,12 @@ install(TARGETS
         RUNTIME 
             COMPONENT Runtime 
         )
+
+
+# BUILDING
+
+# configure: cmake -B ./build -S .
+
+# debug: cmake --build ./build --target targetchi
+
+# release: cmake --build ./build --target targetchi --config Release

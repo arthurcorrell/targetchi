@@ -171,7 +171,15 @@ void DeviceConfig_::setOutputReport(int b1, int b2, int b3) {
     OVERLAPPED overlapped = {0};
     
     // Use WriteFile for sending to the interrupt endpoint. returns 0 when async
+    // WriteFile(dev, reportBuffer, sizeof(reportBuffer), &bytesWritten, &overlapped);
+
+    overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+    
+    // Use WriteFile for sending to the interrupt endpoint. returns 0 when async
+    // OVERLAPPED struct makes operation async
     WriteFile(dev, reportBuffer, sizeof(reportBuffer), &bytesWritten, &overlapped);
+    WaitForSingleObject(overlapped.hEvent, INFINITE); // Wait for completion
+    CloseHandle(overlapped.hEvent);
 }
 
 // set byte 1 to 0-indexed MouseType, -1 for no change
