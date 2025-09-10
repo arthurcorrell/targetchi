@@ -25,6 +25,10 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
     set(CMAKE_TOOLCHAIN_FILE "C:/Users/arthu/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
 endif()
 
+# tbb provides CMake targets, tbb provides pkg-config modules: tbb
+# find_package(TBB CONFIG REQUIRED)
+# target_link_libraries(main PRIVATE TBB::tbb TBB::tbbmalloc TBB::tbbmalloc_proxy)
+
 
 # add subdirectories with their own Cmakelists.txt
 add_subdirectory(raylib-gui/)

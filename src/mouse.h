@@ -15,6 +15,9 @@
 class ArduinoMouse {
 private:
 
+    void move(int x, int y);
+    void click();
+
     std::vector<int> x_history;
     std::vector<int> y_history;
     size_t filter_length;
@@ -26,8 +29,6 @@ private:
 public:
     ArduinoMouse(size_t filter_length = 3);
     ~ArduinoMouse();
-
-    void move(int x, int y);
-    void click();
+    void set(int x, int y, bool b);
     void close();
 };

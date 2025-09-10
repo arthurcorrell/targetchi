@@ -60,19 +60,21 @@ void AimBuddy::show_fps() {
 
 void AimBuddy::listen() {
     while (running) {
-        if ((GetAsyncKeyState(activate_move_key) & 0x8000) && toggled_move) {
-            process("move");
-        }
-        else if ((GetAsyncKeyState(activate_trigger_key) & 0x8000) && toggled_trigger) {
-            process("click");
+        bool m {(GetAsyncKeyState(activate_move_key) & 0x8000) && toggled_move};
+        bool c {(GetAsyncKeyState(activate_trigger_key) & 0x8000) && toggled_trigger};
+
+        if (m || c) {
+            process(m, c);
         }
         
         std::this_thread::sleep_for(std::chrono::milliseconds(5));  // limit to 200 fps
     }
 }
 
-void AimBuddy::process(const std::string& action) {
+void AimBuddy::process(bool m, bool c) {
+
     show_fps();
+
     cv::Mat screen = grabber.get_screen();
     cv::Mat hsv;
     cv::cvtColor(screen, hsv, cv::COLOR_BGR2HSV);
@@ -121,16 +123,15 @@ void AimBuddy::process(const std::string& action) {
     cv::Point center(boundRect.x + boundRect.width / 2, boundRect.y + boundRect.height / 2);
     int y_offset = static_cast<int>(boundRect.height * 0.3);
     
-    if (action == "move") {
+    if (m) {
         int cX = center.x;
         int cY = boundRect.y + y_offset;
         int x_diff = cX - grabber.xfov / 2;
         int y_diff = cY - grabber.yfov / 2;
-        arduinomouse.move(static_cast<int>(x_diff * movespeed), static_cast<int>(y_diff * movespeed));
-    }
-    else if (action == "click" && 
+        arduinomouse.set(static_cast<int>(x_diff * movespeed), static_cast<int>(y_diff * movespeed), c);
+    } else if (c && 
              std::abs(center.x - grabber.xfov / 2) <= 4 && 
              std::abs(center.y - grabber.yfov / 2) <= 10) {
-        arduinomouse.click();
+        arduinomouse.set(0, 0, c);
     }
 }

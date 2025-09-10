@@ -35,7 +35,58 @@ AimbuddyConfig config = {
 // Constants derived from config
 float FLICKSPEED;
 
+void checkBackendCV() {
+    // Increase log level to see backend information
+    cv::utils::logging::setLogLevel(cv::utils::logging::LOG_LEVEL_INFO);
+    
+    // Print OpenCV build information
+    std::cout << "\n=== OpenCV Build Information ===\n";
+    std::cout << cv::getBuildInformation() << std::endl;
+
+    // Check CUDA availability
+    std::cout << "\n=== CUDA Support ===\n";
+    std::cout << "CUDA available: " << (cv::cuda::getCudaEnabledDeviceCount() > 0 ? "YES" : "NO") << std::endl;
+    if (cv::cuda::getCudaEnabledDeviceCount() > 0) {
+        cv::cuda::printCudaDeviceInfo(0); // Print info for first GPU
+    }
+
+    // Check parallel processing backends
+    // std::cout << "\n=== Parallel Processing ===\n";
+    // std::cout << "Parallel framework: " << cv::parallel::getNumThreads() << " threads available" << std::endl;
+
+    // Check DNN backends
+    std::cout << "\n=== DNN Module Backends ===\n";
+    std::cout << "Available backends:" << std::endl;
+    std::vector<std::pair<cv::dnn::Backend, cv::dnn::Target>> backends = {
+        {cv::dnn::DNN_BACKEND_DEFAULT, cv::dnn::DNN_TARGET_CPU},
+        {cv::dnn::DNN_BACKEND_HALIDE, cv::dnn::DNN_TARGET_CPU},
+        {cv::dnn::DNN_BACKEND_INFERENCE_ENGINE, cv::dnn::DNN_TARGET_CPU},
+        {cv::dnn::DNN_BACKEND_OPENCV, cv::dnn::DNN_TARGET_CPU},
+        {cv::dnn::DNN_BACKEND_OPENCV, cv::dnn::DNN_TARGET_OPENCL},
+        {cv::dnn::DNN_BACKEND_OPENCV, cv::dnn::DNN_TARGET_OPENCL_FP16},
+        {cv::dnn::DNN_BACKEND_CUDA, cv::dnn::DNN_TARGET_CUDA},
+        {cv::dnn::DNN_BACKEND_CUDA, cv::dnn::DNN_TARGET_CUDA_FP16},
+        {cv::dnn::DNN_BACKEND_TIMVX, cv::dnn::DNN_TARGET_NPU},
+        {cv::dnn::DNN_BACKEND_CANN, cv::dnn::DNN_TARGET_NPU}
+    };
+
+    for (const auto& backend : backends) {
+        try {
+            // Try to create a simple network to check if backend is available
+            cv::dnn::Net net = cv::dnn::Net();
+            net.setPreferableBackend(backend.first);
+            net.setPreferableTarget(backend.second);
+            std::cout << "- " << backend.first << " with target " << backend.second << ": AVAILABLE" << std::endl;
+        }
+        catch (...) {
+            std::cout << "- " << backend.first << " with target " << backend.second << ": NOT AVAILABLE" << std::endl;
+        }
+    }
+}
+
 int main(int argc, char* argv[]) {
+
+    checkBackendCV();
 
     // Call blocking GUI to populate config
     config = ShowRayGUIConfigDialog(config);

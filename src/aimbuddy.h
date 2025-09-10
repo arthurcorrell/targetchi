@@ -4,6 +4,7 @@
 #include "mouse.h"
 
 #include <opencv2/opencv.hpp>
+#include <opencv2/core/utils/logger.hpp>
 #include <thread>
 #include <atomic>
 #include <chrono>
@@ -24,7 +25,7 @@ private:
     std::chrono::time_point<std::chrono::steady_clock> start_time;
     
     void listen();
-    void process(const std::string& action);
+    void process(bool m, bool c);
     void show_fps();
 
 public:

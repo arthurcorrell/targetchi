@@ -16,6 +16,27 @@ ArduinoMouse::~ArduinoMouse() {
     close();
 }
 
+// set output report bits. delay must be computed on device
+void ArduinoMouse::set(int x, int y, bool b) {
+    if ((x != 0) || (y != 0)) {
+        // add history vals only on valid move calls, x=0 && y=0 edge cases are lost
+        x_history.push_back(x);
+        y_history.push_back(y);
+        
+        x_history.erase(x_history.begin());
+        y_history.erase(y_history.begin());
+        
+        int smooth_x = std::accumulate(x_history.begin(), x_history.end(), 0) / filter_length;
+        int smooth_y = std::accumulate(y_history.begin(), y_history.end(), 0) / filter_length;
+
+        DeviceConfig.setOutputReport(smooth_x, smooth_y, static_cast<int>(b));
+    } else {
+        // static cast for edge case where x, y is computed to 0
+        DeviceConfig.setOutputReport(0, 0, static_cast<int>(b));
+    }
+}
+
+// antiquated
 void ArduinoMouse::move(int x, int y) {
     // Add new values to history
     x_history.push_back(x);
@@ -32,6 +53,7 @@ void ArduinoMouse::move(int x, int y) {
     DeviceConfig.setOutputReport(smooth_x, smooth_y, 0);
 }
 
+// antiquated
 void ArduinoMouse::click() {
     double delay = dis(gen);  // Random delay between 0.01 and 0.1 seconds
     
