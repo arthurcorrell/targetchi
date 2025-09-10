@@ -44,13 +44,13 @@ private:
     ArduinoMouse arduinomouse;
     std::thread listen_thread;
     std::atomic<bool> running;
+    float movespeed;
     int activate_move_key;
     int activate_trigger_key;
     bool wasd_safety;
     bool debug_screenshot;
     int frame_count;
     int color_mask;
-    float movespeed;
     std::chrono::time_point<std::chrono::steady_clock> start_time;
 
     cv::Scalar lower_color;
@@ -75,7 +75,7 @@ public:
     void* COLOR_MASK;
     
     AimBuddy(int x, int y, int xfov, int yfov, float movespeed,
-            int activate_move_key = VK_RBUTTON, int activate_trigger_key = VK_LBUTTON, int color_mask);
+            int activate_move_key, int activate_trigger_key, int color_mask);
     ~AimBuddy();
     
     void toggle_move();
