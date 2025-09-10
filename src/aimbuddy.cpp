@@ -5,17 +5,45 @@
 #include <Windows.h>
 
 AimBuddy::AimBuddy(int x, int y, int xfov, int yfov, float movespeed,
-             int activate_move_key, int activate_trigger_key)
-    : grabber(x, y, xfov, yfov), 
-      movespeed(movespeed),
-      activate_move_key(activate_move_key),
-      activate_trigger_key(activate_trigger_key),
-      toggled_move(false),
-      toggled_trigger(false),
-      gui_toggled(false),
-      running(true),
-      debug_screenshot(false), 
-      frame_count(0) {
+             int activate_move_key, int activate_trigger_key, int color_mask) : 
+        grabber(x, y, xfov, yfov), 
+        movespeed(movespeed),
+        activate_move_key(activate_move_key),
+        activate_trigger_key(activate_trigger_key),
+        toggled_move(false),
+        toggled_trigger(false),
+        gui_toggled(false),
+        running(true),
+        debug_screenshot(false), 
+        frame_count(0), 
+        color_mask(color_mask) {
+
+    switch (color_mask) {
+        case 0: // Purple
+            lower_color = cv::Scalar(PURPLE_COLOR_MASK::LOWER_COLOR_H, 
+                                     PURPLE_COLOR_MASK::LOWER_COLOR_S,
+                                     PURPLE_COLOR_MASK::LOWER_COLOR_V);
+            upper_color = cv::Scalar(PURPLE_COLOR_MASK::UPPER_COLOR_H,
+                                     PURPLE_COLOR_MASK::UPPER_COLOR_S,
+                                     PURPLE_COLOR_MASK::UPPER_COLOR_V);
+            break;
+        case 1: // Red
+            lower_color = cv::Scalar(RED_COLOR_MASK::LOWER_COLOR_H,
+                                     RED_COLOR_MASK::LOWER_COLOR_S,
+                                     RED_COLOR_MASK::LOWER_COLOR_V);
+            upper_color = cv::Scalar(RED_COLOR_MASK::UPPER_COLOR_H,
+                                     RED_COLOR_MASK::UPPER_COLOR_S,
+                                     RED_COLOR_MASK::UPPER_COLOR_V);
+            break;
+        case 2: // Yellow
+            lower_color = cv::Scalar(YELLOW_COLOR_MASK::LOWER_COLOR_H,
+                                     YELLOW_COLOR_MASK::LOWER_COLOR_S,
+                                     YELLOW_COLOR_MASK::LOWER_COLOR_V);
+            upper_color = cv::Scalar(YELLOW_COLOR_MASK::UPPER_COLOR_H,
+                                     YELLOW_COLOR_MASK::UPPER_COLOR_S,
+                                     YELLOW_COLOR_MASK::UPPER_COLOR_V);
+            break;
+    }
     
     start_time = std::chrono::steady_clock::now();
 
@@ -84,10 +112,6 @@ void AimBuddy::process(bool m, bool c) {
     screen = grabber.get_screen();
 
     cv::cvtColor(screen, hsv, cv::COLOR_BGR2HSV);
-    
-    // Create mask for color detection
-    cv::Scalar lower_color(LOWER_COLOR_H, LOWER_COLOR_S, LOWER_COLOR_V);
-    cv::Scalar upper_color(UPPER_COLOR_H, UPPER_COLOR_S, UPPER_COLOR_V);
     
     cv::inRange(hsv, lower_color, upper_color, mask);
     

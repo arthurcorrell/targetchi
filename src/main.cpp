@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
     
     AimBuddy aimbuddy(CENTER_X - config.XFOV / 2, CENTER_Y - config.YFOV / 2, 
                      config.XFOV, config.YFOV, config.MOVESPEED,
-                     config.ACTIVATE_MOVE, config.ACTIVATE_TRIGGER);
+                     config.ACTIVATE_MOVE, config.ACTIVATE_TRIGGER, config.COLOR_MASK);
     
     // std::cout << "Targetchi started with configured settings" << std::endl;
     // std::cout << "Press " << (char)config.QUIT << " to quit" << std::endl;

@@ -12,6 +12,33 @@
 // These constants are now managed by the config_gui.h
 // and passed to the AimBuddy constructor
 
+struct PURPLE_COLOR_MASK {
+    static constexpr int LOWER_COLOR_H = 140; // better than 135
+    static constexpr int LOWER_COLOR_S = 120; // better than 10, filters more
+    static constexpr int LOWER_COLOR_V = 173; // -> 173, old: 180
+    static constexpr int UPPER_COLOR_H = 157; // -> 157, old: 160
+    static constexpr int UPPER_COLOR_S = 255; // -> 255, old: 200
+    static constexpr int UPPER_COLOR_V = 255; // -> 199 to remove KJ molly, old: 255
+};
+
+struct RED_COLOR_MASK {
+    static constexpr int LOWER_COLOR_H = 0;
+    static constexpr int LOWER_COLOR_S = 198;
+    static constexpr int LOWER_COLOR_V = 243; 
+    static constexpr int UPPER_COLOR_H = 0; 
+    static constexpr int UPPER_COLOR_S = 255; 
+    static constexpr int UPPER_COLOR_V = 255;
+};
+
+struct YELLOW_COLOR_MASK {
+    static constexpr int LOWER_COLOR_H = 28;
+    static constexpr int LOWER_COLOR_S = 75;
+    static constexpr int LOWER_COLOR_V = 175; 
+    static constexpr int UPPER_COLOR_H = 30; 
+    static constexpr int UPPER_COLOR_S = 140; 
+    static constexpr int UPPER_COLOR_V = 185;
+};
+
 class AimBuddy {
 private:
     ArduinoMouse arduinomouse;
@@ -22,7 +49,12 @@ private:
     bool wasd_safety;
     bool debug_screenshot;
     int frame_count;
+    int color_mask;
+    float movespeed;
     std::chrono::time_point<std::chrono::steady_clock> start_time;
+
+    cv::Scalar lower_color;
+    cv::Scalar upper_color;
 
     // these have unknown sizes, must be initialized the same as Capture::screen = cv::Mat(yfov, xfov, CV_8UC3); 
     cv::Mat screen;
@@ -39,19 +71,11 @@ public:
     std::atomic<bool> toggled_move;
     std::atomic<bool> toggled_trigger;
     std::atomic<bool> gui_toggled;
-    
-    // Color thresholds for detection
-    static constexpr int LOWER_COLOR_H = 140; // better than 135
-    static constexpr int LOWER_COLOR_S = 120; // better than 10, filters more
-    static constexpr int LOWER_COLOR_V = 173; // -> 173, old: 180
-    static constexpr int UPPER_COLOR_H = 157; // -> 157, old: 160
-    static constexpr int UPPER_COLOR_S = 255; // -> 255, old: 200
-    static constexpr int UPPER_COLOR_V = 255; // -> 199 to remove KJ molly, old: 255
-    
-    float movespeed;
+
+    void* COLOR_MASK;
     
     AimBuddy(int x, int y, int xfov, int yfov, float movespeed,
-            int activate_move_key = VK_RBUTTON, int activate_trigger_key = VK_LBUTTON);
+            int activate_move_key = VK_RBUTTON, int activate_trigger_key = VK_LBUTTON, int color_mask);
     ~AimBuddy();
     
     void toggle_move();
