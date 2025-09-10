@@ -23,6 +23,12 @@ private:
     bool debug_screenshot;
     int frame_count;
     std::chrono::time_point<std::chrono::steady_clock> start_time;
+
+    // these have unknown sizes, must be initialized the same as Capture::screen = cv::Mat(yfov, xfov, CV_8UC3); 
+    cv::Mat screen;
+    cv::Mat hsv;
+    cv::Mat mask;
+    cv::Mat dilated;
     
     void listen();
     void process(bool m, bool c);

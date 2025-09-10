@@ -19,6 +19,13 @@ AimBuddy::AimBuddy(int x, int y, int xfov, int yfov, float flickspeed, float mov
       frame_count(0) {
     
     start_time = std::chrono::steady_clock::now();
+
+    // allocate CV operations
+    // must be initialized the same as Capture::screen = cv::Mat(yfov, xfov, CV_8UC3); 
+    screen = cv::Mat(yfov, xfov, CV_8UC3); 
+    hsv.create(screen.size(), CV_8UC3);
+    mask.create(screen.size(), CV_8UC1);
+    dilated.create(screen.size(), CV_8UC1);
           
     // Start listening thread
     listen_thread = std::thread(&AimBuddy::listen, this);
@@ -75,18 +82,17 @@ void AimBuddy::process(bool m, bool c) {
 
     show_fps();
 
-    cv::Mat screen = grabber.get_screen();
-    cv::Mat hsv;
+    screen = grabber.get_screen();
+
     cv::cvtColor(screen, hsv, cv::COLOR_BGR2HSV);
     
     // Create mask for color detection
     cv::Scalar lower_color(LOWER_COLOR_H, LOWER_COLOR_S, LOWER_COLOR_V);
     cv::Scalar upper_color(UPPER_COLOR_H, UPPER_COLOR_S, UPPER_COLOR_V);
-    cv::Mat mask;
+    
     cv::inRange(hsv, lower_color, upper_color, mask);
     
     // Dilate to improve contour detection
-    cv::Mat dilated;
     cv::dilate(mask, dilated, cv::Mat(), cv::Point(-1, -1), 5);
 
     // if (!debug_screenshot) {
