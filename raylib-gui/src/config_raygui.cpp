@@ -388,7 +388,9 @@ void RayGUIConfig::CloseWindow() {
     }
     // always close all device handles
     if (DeviceConfig.activeHandle) {
-        DeviceConfig.stopHandle();
+        if (!(DeviceConfig.stopHandle())) {
+            exit(EXIT_FAILURE);
+        }
     }
     
     ::CloseWindow();  // scope resolution operator resolves runtime polymorphism

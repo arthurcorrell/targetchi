@@ -87,7 +87,9 @@ int main(int argc, char* argv[]) {
 
     // Call blocking GUI to populate config
     config = ShowRayGUIConfigDialog(config);
-    
+
+    // wait a bit
+    std::this_thread::sleep_for(std::chrono::seconds(5));
     
     // Get screen dimensions
     int screen_width = GetSystemMetrics(SM_CXSCREEN);
@@ -95,7 +97,7 @@ int main(int argc, char* argv[]) {
     
     int CENTER_X = screen_width / 2;
     int CENTER_Y = screen_height / 2;
-    
+
     AimBuddy aimbuddy(CENTER_X - config.XFOV / 2, CENTER_Y - config.YFOV / 2, 
                      config.XFOV, config.YFOV, config.MOVESPEED,
                      config.ACTIVATE_MOVE, config.ACTIVATE_TRIGGER, config.COLOR_MASK);

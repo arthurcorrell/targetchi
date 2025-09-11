@@ -57,6 +57,7 @@ private:
     cv::Scalar upper_color;
 
     // these have unknown sizes, must be initialized the same as Capture::screen = cv::Mat(yfov, xfov, CV_8UC3); 
+    std::mutex cv_mutex;
     cv::Mat screen;
     cv::Mat hsv;
     cv::Mat mask;

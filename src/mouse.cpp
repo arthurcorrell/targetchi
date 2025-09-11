@@ -1,5 +1,5 @@
 #include "mouse.h"
-#include "init.h"
+#include "../raylib-gui/include/init.h"
 #include <iostream>
 
 ArduinoMouse::ArduinoMouse(size_t filter_length) 

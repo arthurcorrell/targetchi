@@ -106,8 +106,8 @@ void AimBuddy::listen() {
 }
 
 void AimBuddy::process(bool m, bool c) {
-
-    show_fps();
+    std::lock_guard<std::mutex> lock(cv_mutex);
+    //show_fps();
 
     screen = grabber.get_screen();
 

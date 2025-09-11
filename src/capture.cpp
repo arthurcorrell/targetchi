@@ -39,13 +39,15 @@ Capture::~Capture() {
     if (capture_thread.joinable()) {
         capture_thread.join();
     }
-    //SelectObject(hMemoryDC, image);
-    DeleteObject(hBitmap);
-    
-    // called for CreateCompatibleDC
-    DeleteDC(hMemoryDC);
-    // called for GetDC
-    ReleaseDC(NULL, hScreenDC);
+
+    {
+        // Lock to ensure no other thread is accessing screen
+        std::lock_guard<std::mutex> guard(lock);
+        // Clean up GDI resources
+        DeleteObject(hBitmap);
+        DeleteDC(hMemoryDC);
+        ReleaseDC(NULL, hScreenDC);
+    }
 }
 
 // captures frames at 200fps
