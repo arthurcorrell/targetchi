@@ -39,7 +39,7 @@ add_subdirectory(raylib-gui/)
 set(SOURCES
     src/main.cpp
     src/aimbuddy.cpp
-    src/capture.cpp
+    src/dx_capture.cpp
     src/mouse.cpp
     src/show_gui.cpp
     #src/hid_com.cpp
@@ -48,7 +48,7 @@ set(SOURCES
 
 set(HEADERS
     src/aimbuddy.h
-    src/capture.h
+    src/dx_capture.h
     src/mouse.h
     src/show_gui.h
     #src/hid_com.h
@@ -84,6 +84,7 @@ PRIVATE
     ${OpenCV_LIBS}
     raylib-gui
     hid setupapi
+    d3d11.lib dxgi.lib
     #bootloader
 )
 

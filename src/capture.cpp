@@ -57,8 +57,8 @@ void Capture::capture_loop() {
             // mutex goes out of scope once screen is captured
             std::lock_guard<std::mutex> guard(lock);
             capture_screen();
+            update_fps();
         }
-        //update_fps();
         
         // Small sleep to avoid consuming too much CPU
         std::this_thread::sleep_for(std::chrono::milliseconds(6));
