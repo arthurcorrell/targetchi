@@ -66,6 +66,9 @@ private:
     void listen();
     void process(bool m, bool c);
 
+    // flag to reset arduino registers to 0 
+    bool currently_active;
+
 
     // capture code
 

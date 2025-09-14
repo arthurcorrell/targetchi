@@ -14,7 +14,8 @@ AimBuddy::AimBuddy(int x, int y, int xfov, int yfov, float movespeed,
         running(true),
         frame_count(0), 
         color_mask(color_mask), 
-        x(x), y(y), xfov(xfov), yfov(yfov) {
+        x(x), y(y), xfov(xfov), yfov(yfov), 
+        currently_active(false) {
     
         // Get desktop resolution
     screenWidth = GetSystemMetrics(SM_CXSCREEN);
@@ -343,11 +344,15 @@ void AimBuddy::listen() {
 
         if (m || c) {
             process(m, c);
-            update_fps();
+            update_fps(); 
+        } else if (currently_active) {
+            // reset arduino registers
+            arduinomouse.set(0, 0, 0);
+            currently_active = false;
         }
 
         //std::this_thread::yield();
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));  // limit to 140 fps
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));  // limit to 200 fps
         
     }
 }
@@ -392,6 +397,9 @@ void AimBuddy::process(bool m, bool c) {
     int y_offset = static_cast<int>(boundRect.height * 0.3);
     
     if (m) {
+        if (!currently_active) {
+            currently_active = true;
+        }
         int cX = center.x;
         int cY = boundRect.y + y_offset;
         int x_diff = cX - xfov / 2;
@@ -400,7 +408,10 @@ void AimBuddy::process(bool m, bool c) {
     } else if (c && 
              std::abs(center.x - xfov / 2) <= 4 && 
              std::abs(center.y - yfov / 2) <= 10) {
+        if (!currently_active) {
+            currently_active = true;
+        }
         arduinomouse.set(0, 0, c);
     }
-    arduinomouse.set(1, 1, 0);
+    // arduinomouse.set(1, 1, 0); // WHY THE HELL DID I DO THIS!!!!
 }

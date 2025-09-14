@@ -29,6 +29,8 @@ void ArduinoMouse::set(int x, int y, bool b) {
         int smooth_x = std::accumulate(x_history.begin(), x_history.end(), 0) / filter_length;
         int smooth_y = std::accumulate(y_history.begin(), y_history.end(), 0) / filter_length;
 
+        // ADD MOVESPEED MULTIPLIER PROPORTIONAL TO DISTANCE WITH MIN CLAMP AT 1
+
         DeviceConfig.setOutputReport(smooth_x, smooth_y, static_cast<int>(b));
     } else {
         // static cast for edge case where x, y is computed to 0
