@@ -124,7 +124,7 @@ int main(int argc, char* argv[]) {
     
     try {
         while (running) {
-            if (GetAsyncKeyState(config.TOGGLE_KEY)) {
+            if (GetAsyncKeyState(config.TOGGLE_KEY) & 0x8000) {
                 if (GetAsyncKeyState(config.TOGGLE_MOVE) & 0x8000) {
                     aimbuddy.toggle_move();
                     status_move = aimbuddy.toggled_move ? "Enabled " : "Disabled";
@@ -138,7 +138,7 @@ int main(int argc, char* argv[]) {
             // std::cout << "Status trigger " << status_trigger << std::endl;
             // std::cout << std::flush;
             
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
     }
     catch (const std::exception& e) {

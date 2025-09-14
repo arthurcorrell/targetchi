@@ -78,6 +78,7 @@ private:
     void capture_loop();
     bool capture_screen();
     void update_fps();
+    void get_latest_frame();
 
     // DXGI screen duplication objects
     ID3D11Device* d3d_device = nullptr;

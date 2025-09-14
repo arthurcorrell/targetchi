@@ -74,8 +74,8 @@ void AimBuddy::update_fps() {
     auto current_time = std::chrono::steady_clock::now();
     auto elapsed_time = std::chrono::duration_cast<std::chrono::seconds>(current_time - start_time).count();
     
-    if (elapsed_time >= 0.1) {
-        double fps = (frame_count / static_cast<double>(elapsed_time)) * 10.0f;
+    if (elapsed_time >= 0.25) {
+        double fps = (frame_count / static_cast<double>(elapsed_time));
         std::cout << "DXGI Capture - FPS: " << static_cast<int>(fps) << "\r" << std::flush;
         frame_count = 0;
         start_time = current_time;
@@ -93,8 +93,8 @@ bool AimBuddy::capture_screen() {
     DXGI_OUTDUPL_FRAME_INFO frame_info;
     HRESULT hr = S_OK;
 
-    // Try to acquire the next frame with minimal timeout (8ms)
-    hr = dxgi_output_duplication->AcquireNextFrame(8, &frame_info, &desktop_resource);
+    // allow up to 12ms before timeout
+    hr = dxgi_output_duplication->AcquireNextFrame(12, &frame_info, &desktop_resource);
     
     // If timeout or no new frame is available
     if (hr == DXGI_ERROR_WAIT_TIMEOUT) {
@@ -181,6 +181,9 @@ bool AimBuddy::capture_screen() {
     return true;
 }
 
+void AimBuddy::get_latest_frame() {
+
+}
 bool AimBuddy::init_dxgi_duplication() {
     HRESULT hr = S_OK;
     
@@ -322,12 +325,12 @@ void AimBuddy::close() {
 
 void AimBuddy::toggle_move() {
     toggled_move = !toggled_move;
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    std::this_thread::sleep_for(std::chrono::milliseconds(400));
 }
 
 void AimBuddy::toggle_trigger() {
     toggled_trigger = !toggled_trigger;
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    std::this_thread::sleep_for(std::chrono::milliseconds(400));
 }
 
 
@@ -335,19 +338,23 @@ void AimBuddy::listen() {
     while (running) {
         bool m {(GetAsyncKeyState(activate_move_key) & 0x8000) && toggled_move};
         bool c {(GetAsyncKeyState(activate_trigger_key) & 0x8000) && toggled_trigger};
-        if (capture_screen()) {
-            if (m || c) {
-                process(m, c);
-                update_fps();
-            }
+
+        capture_screen();
+
+        if (m || c) {
+            process(m, c);
+            update_fps();
         }
 
         //std::this_thread::yield();
         std::this_thread::sleep_for(std::chrono::milliseconds(5));  // limit to 140 fps
+        
     }
 }
 
 void AimBuddy::process(bool m, bool c) {
+    get_latest_frame();
+
     cv::cvtColor(screen, hsv, cv::COLOR_BGR2HSV);
     
     cv::inRange(hsv, lower_color, upper_color, mask);
@@ -355,8 +362,8 @@ void AimBuddy::process(bool m, bool c) {
     // Dilate to improve contour detection
     cv::dilate(mask, dilated, cv::Mat(), cv::Point(-1, -1), 5);
 
-    cv::imshow("Debug Capture", mask);
-    cv::waitKey(1);
+    // cv::imshow("Debug Capture", mask);
+    // cv::waitKey(1);
     
     // Find contours
     std::vector<std::vector<cv::Point>> contours;
