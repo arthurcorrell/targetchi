@@ -1,13 +1,18 @@
 #pragma once
 
-#include "capture.h"
+#include <Windows.h>
+#include <vector>
+#include <mutex>
+#include <thread>
+#include <chrono>
+#include <atomic>
+#include <d3d11.h>
+#include <dxgi1_2.h>
+
 #include "mouse.h"
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/utils/logger.hpp>
-#include <thread>
-#include <atomic>
-#include <chrono>
 
 // These constants are now managed by the config_gui.h
 // and passed to the AimBuddy constructor
@@ -48,27 +53,46 @@ private:
     int activate_move_key;
     int activate_trigger_key;
     bool wasd_safety;
-    bool debug_screenshot;
-    int frame_count;
     int color_mask;
-    std::chrono::time_point<std::chrono::steady_clock> start_time;
 
     cv::Scalar lower_color;
     cv::Scalar upper_color;
 
     // these have unknown sizes, must be initialized the same as Capture::screen = cv::Mat(yfov, xfov, CV_8UC3); 
-    std::mutex cv_mutex;
-    cv::Mat screen;
     cv::Mat hsv;
     cv::Mat mask;
     cv::Mat dilated;
     
     void listen();
     void process(bool m, bool c);
-    void show_fps();
+
+
+    // capture code
+
+    cv::Mat screen;
+    std::mutex lock;
+    
+    std::chrono::time_point<std::chrono::steady_clock> start_time;
+    int frame_count;
+    
+    void capture_loop();
+    bool capture_screen();
+    void update_fps();
+
+    // DXGI screen duplication objects
+    ID3D11Device* d3d_device = nullptr;
+    ID3D11DeviceContext* d3d_context = nullptr;
+    IDXGIOutputDuplication* dxgi_output_duplication = nullptr;
+    
+    // Screen texture resources
+    ID3D11Texture2D* desktop_texture = nullptr;
+    ID3D11Texture2D* staging_texture = nullptr;
+    
+    // Initialization methods
+    bool init_dxgi_duplication();
+    void release_dxgi_resources();
 
 public:
-    Capture grabber;
     std::atomic<bool> toggled_move;
     std::atomic<bool> toggled_trigger;
     std::atomic<bool> gui_toggled;
@@ -84,4 +108,8 @@ public:
     void close();
     
     friend void toggle_gui(AimBuddy* aimbuddy);
+
+    // capture 
+    int x, y, xfov, yfov;
+    int screenWidth, screenHeight;
 };

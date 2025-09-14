@@ -39,18 +39,18 @@ add_subdirectory(raylib-gui/)
 set(SOURCES
     src/main.cpp
     src/aimbuddy.cpp
-    src/dx_capture.cpp
+    #src/dx_capture.cpp
     src/mouse.cpp
-    src/show_gui.cpp
+    #src/show_gui.cpp
     #src/hid_com.cpp
     #src/config_gui.cpp
 )
 
 set(HEADERS
     src/aimbuddy.h
-    src/dx_capture.h
+    #src/dx_capture.h
     src/mouse.h
-    src/show_gui.h
+    #src/show_gui.h
     #src/hid_com.h
     #src/config_gui.h
 )

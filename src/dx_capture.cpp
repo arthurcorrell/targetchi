@@ -168,7 +168,6 @@ void Capture::capture_loop() {
             // mutex goes out of scope once screen is captured
             std::lock_guard<std::mutex> guard(lock);
             capture_screen();
-            update_fps();
         }
         
         // Use minimal sleep to maximize FPS (use std::this_thread::yield() instead of sleep)
@@ -187,8 +186,8 @@ void Capture::capture_screen() {
     DXGI_OUTDUPL_FRAME_INFO frame_info;
     HRESULT hr = S_OK;
 
-    // Try to acquire the next frame with minimal timeout (0ms)
-    hr = dxgi_output_duplication->AcquireNextFrame(0, &frame_info, &desktop_resource);
+    // Try to acquire the next frame with minimal timeout (8ms)
+    hr = dxgi_output_duplication->AcquireNextFrame(8, &frame_info, &desktop_resource);
     
     // If timeout or no new frame is available
     if (hr == DXGI_ERROR_WAIT_TIMEOUT) {
@@ -262,6 +261,8 @@ void Capture::capture_screen() {
         // Copy one row at a time (BGRA data)
         memcpy(dest_row, source_row, capture_width * 4); // 4 bytes per pixel (BGRA)
     }
+
+    update_fps();
     
     // Unmap the staging texture
     d3d_context->Unmap(staging_texture, 0);
