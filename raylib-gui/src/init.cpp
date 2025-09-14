@@ -61,7 +61,7 @@ void DeviceConfig_::startHandle() {
                 FILE_SHARE_READ | FILE_SHARE_WRITE,
                 nullptr,
                 OPEN_EXISTING,
-                0, //FILE_FLAG_OVERLAPPED, // changed from 0
+                FILE_FLAG_OVERLAPPED, // changed from 0
                 nullptr);
                 
             if (tempHandle != INVALID_HANDLE_VALUE) {
@@ -186,7 +186,7 @@ void DeviceConfig_::setOutputReport(int b1, int b2, int b3) {
     
     // Use WriteFile for sending to the interrupt endpoint. returns 0 when async
     // OVERLAPPED struct makes operation async
-    WriteFile(dev, reportBuffer, sizeof(reportBuffer), &bytesWritten, NULL);//&overlapped);
+    WriteFile(dev, reportBuffer, sizeof(reportBuffer), &bytesWritten, &overlapped);
     // WaitForSingleObject(overlapped.hEvent, INFINITE); // Wait for completion
     // CloseHandle(overlapped.hEvent);
 }
@@ -209,10 +209,10 @@ void DeviceConfig_::setSaveByte(int b) {
     // }
 
     DWORD bytesWritten = 0;
-    //OVERLAPPED overlapped = {0};
+    OVERLAPPED overlapped = {0};
     
     // Use WriteFile for sending to the interrupt endpoint. returns 0 when async
-    WriteFile(dev, reportBuffer, sizeof(reportBuffer), &bytesWritten, NULL);//&overlapped);
+    WriteFile(dev, reportBuffer, sizeof(reportBuffer), &bytesWritten, &overlapped);
 }
 
 // type-safe API for referencing the handle. returns currently active handle
