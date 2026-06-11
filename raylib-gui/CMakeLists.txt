@@ -10,12 +10,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(SOURCES
     src/config_raygui.cpp
     src/init.cpp
+    src/auth.cpp
 )
 
 set(HEADERS
     include/config_raygui.h
     include/init.h
     src/raygui.h
+    src/auth.h
 )
 
 # SHARED library (linked obj files) <- runs with final exe as DLL, all symbols are resolved when creating DLL
@@ -40,12 +42,19 @@ target_include_directories(raylib-gui
         ${CMAKE_CURRENT_SOURCE_DIR}/include
     PRIVATE 
         ${CMAKE_CURRENT_SOURCE_DIR}/src   
-        "C:\\libs\\raylib-5.5_win64_msvc16\\include")
+        "C:\\libs\\raylib-5.5_win64_msvc16\\include"
+        "C:\\Users\\arthu\\vcpkg\\installed\\x64-windows\\include"
+        )
 
-target_link_directories(raylib-gui PRIVATE "C:\\libs\\raylib-5.5_win64_msvc16\\lib")
+target_link_directories(raylib-gui 
+    PRIVATE 
+        "C:\\libs\\raylib-5.5_win64_msvc16\\lib"
+        "C:\\Users\\arthu\\vcpkg\\installed\\x64-windows\\lib"
+        )
 
 # Link with raylib 
-target_link_libraries(raylib-gui PRIVATE raylib winmm hid setupapi)
+target_link_libraries(raylib-gui PRIVATE raylib winmm hid setupapi
+    libcurl.lib ws2_32.lib wldap32.lib)
 
 # Define RAYGUI_IMPLEMENTATION in exactly ONE source file
 # target_compile_definitions(raylib-gui PRIVATE RAYGUI_IMPLEMENTATION)
