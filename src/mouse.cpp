@@ -31,10 +31,11 @@ void ArduinoMouse::set(int x, int y, bool b) {
 
         // ADD MOVESPEED MULTIPLIER PROPORTIONAL TO DISTANCE WITH MIN CLAMP AT 1
 
-        DeviceConfig.setOutputReport(smooth_x, smooth_y, static_cast<int>(b));
+        // Non-blocking: deltas are coalesced and drained by the writer thread.
+        DeviceConfig.queueMove(smooth_x, smooth_y, static_cast<int>(b));
     } else {
         // static cast for edge case where x, y is computed to 0
-        DeviceConfig.setOutputReport(0, 0, static_cast<int>(b));
+        DeviceConfig.queueMove(0, 0, static_cast<int>(b));
     }
 }
 

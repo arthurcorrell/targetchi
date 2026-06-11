@@ -22,6 +22,11 @@ public:
     void setSaveByte(int b);
     void setOutputReport(int b1, int b2, int b3);
 
+    // Runtime movement path: non-blocking, coalescing. Deltas are accumulated
+    // and drained by a dedicated writer thread so the caller (aim loop) never
+    // stalls on USB and congested writes merge instead of being dropped.
+    void queueMove(int dx, int dy, int button);
+
     bool activeHandle;
     bool deviceError;
 private:
